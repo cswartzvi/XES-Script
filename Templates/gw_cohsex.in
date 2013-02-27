@@ -1,0 +1,54 @@
+&CONTROL
+  calculation   = "cohsex",
+  restart_mode  = 'restart',
+  nstep         = 1,
+  iprint        = 1,
+  isave         = 1,
+  dt            = 0.1D0,
+  etot_conv_thr = 1.D-6,
+  ekin_conv_thr = 5.D-5,
+  max_seconds   = 7000,
+  prefix        = "water",
+  pseudo_dir = '/global/u2/m/mohan/5_xifan/XES_bin/pseudo/', 
+  outdir        = "GW",
+/
+&SYSTEM
+  ibrav     =  1,
+  celldm(1) = 23.5170,
+  nat       = 192,
+  ntyp      = 3,
+  nbnd      = 512, 
+  ecutwfc   = 71.0D0
+/
+&ELECTRONS
+  emass             = 400.D0,
+  emass_cutoff      = 3.D0,
+  ortho_eps         = 1.D-8,
+  ortho_max         = 800,
+  electron_dynamics = "damp",
+  electron_damping  = 0.15,
+/
+&IONS
+  ion_dynamics = "none",
+/
+&WANNIER
+  nit    =  100 ,
+  calwf  =  3 ,
+  tolw   =  5.D-6,
+  adapt  =  .false.,
+  wfdt   =  2.D0 ,
+  wf_q   =  500 ,
+  wf_friction = 0.3d0,
+  nsteps =  10,
+  poisson_eps = 1.D-5,
+  dis_cutoff  = 7.0,
+  exx_ps_rcut = 5.0,
+  exx_me_rcut = 50.0,
+  neigh = 60,
+  vnbsp  =  256,
+/
+ATOMIC_SPECIES
+OO 15.9994  o+.pbe.tm.ncpp.rcut1.1.upf
+O  15.9994  O.pbe-mt.UPF
+H  1.00794  H_MT_PBE.UPF
+ATOMIC_POSITIONS {bohr}

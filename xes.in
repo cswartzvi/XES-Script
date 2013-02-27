@@ -1,0 +1,30 @@
+#Number of configurations
+config_start      = 1
+config_stop       = 64
+procs             = 128
+procs_gw          = 512
+
+#Some Set-up information
+prefix            = water
+numO              = 64
+numH              = 128
+celldm            = 23.5170
+pseudo_dir        = ./
+
+#previous MD SIulation Information
+md_dir            = /home/charles/Desktop/Research/XES_Project/Scripts/test-dir 
+md_xml            = /home/charles/Desktop/Research/XES_Project/Scripts/test-dir/data-file.xml
+
+#Data for the Groundstate Calculations
+gs_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/gs.in
+gs_outdir         = Data-Files_GS
+gs_qe             = TBD 
+
+#Data for the CHMD Calculations
+chmd_template     = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/chmd.in
+chmd_outdir       = Data-Files_CHMD
+chmd_qe           = TBD 
+
+#Submit script template
+submit_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/submit.cmd
+para_prefix       = aprun
