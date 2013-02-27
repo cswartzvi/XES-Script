@@ -25,6 +25,15 @@ chmd_template     = /home/charles/Desktop/Research/XES_Project/Scripts/Templates
 chmd_outdir       = Data-Files_CHMD
 chmd_qe           = TBD 
 
+#Values for the GW Calculations
+gw_pw_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/pw.template
+gw_pwnscf_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/pw-nscf.template
+gw_cp_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/cp.template
+gw_cpnscf_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/cp-nscf.template
+gw_template          = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/gw-lf.template
+gw_outdir            = Data-Files_GW
+gw_qe                = TBA 
+
 #Submit script template
 submit_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/submit.cmd
 para_prefix       = aprun

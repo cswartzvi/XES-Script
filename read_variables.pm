@@ -23,31 +23,39 @@ sub read_variables{
 
    #Set Defaults for the main variables
    my %var = (
-      config_start      => 1,
-      config_stop       => 64,
-      procs             => '',
-      procs_gw          => '',
-      prefix            => '',
-      numO              => 64,
-      numH              => 128,
-      celldm            => '',
-      pseudo_dir        => '',
-      md_dir            => '', 
-      md_xml            => '',
-      gs_template       => '',
-      gs_outdir         => 'Data-Files_GS',
-      gs_qe             => '',
-      chmd_outdir       => 'Data_Files_CHMD',
-      chmd_template     => '',
-      chmd_steps        => '150',
-      chmd_iprint       => '30',
-      chmd_qe           => '',
-      submit_template   => '',
-      para_prefix       => '',
+      config_start         => 1,
+      config_stop          => 64,
+      procs                => '',
+      procs_gw             => '',
+      prefix               => '',
+      numO                 => 64,
+      numH                 => 128,
+      celldm               => '',
+      pseudo_dir           => '',
+      md_dir               => '', 
+      md_xml               => '',
+      gs_template          => '',
+      gs_outdir            => 'Data-Files_GS',
+      chmd_outdir          => 'Data-Files_CHMD',
+      chmd_template        => '',
+      gw_pw_template       => '', 
+      gw_pwnscf_template   => '', 
+      gw_cp_template       => '', 
+      gw_cpnscf_template   => '', 
+      gw_template          => '',
+      gw_outdir            => 'Data-Files_GW',
+      submit_template      => '',
+      para_prefix          => '',
+      para_flags           => '',
+      pw_qe                => '',
+      cp_qe                => '',
+      gw_qe                => '',
    );
 
    #Total Atoms
    $var{nat} = $var{numO} + $var{numH};
+
+   #TODO check the para_flags element
 
    #Loop through the input file
    while (defined(my $line = <$fh>)){

@@ -1,0 +1,39 @@
+#
+&control
+    calculation   =  'scf',
+    restart_mode  =  'from_scratch',
+  prefix = water
+    max_seconds   =  3000,
+    wf_collect    =  .TRUE.,
+  pseudo_dir = ./
+  outdir = ./Data-Files_GW
+    tprnfor       =  .TRUE.
+ /
+&system
+    ibrav      =  1,
+  celldm(1) = 23.5170
+  nat = 192
+    ntyp       =  2,
+    ecutwfc    =  71.0,
+    nosym      =  .true.,
+    nbnd       =  256
+    tot_charge     = +1
+ /
+&electrons
+    diagonalization  =  'david',
+    mixing_mode      =  'plain',
+    mixing_beta      =  0.7 ,
+    mixing_ndim      =  8 ,
+    conv_thr         =  1.0d-6,
+ /
+&ions
+    upscale          =  10
+ /
+ATOMIC_SPECIES
+O  MASSO!!  PPO!!
+H  MASSH!!  PPH!!
+
+ATOMIC_POSITIONS {bohr}
+
+
+K_POINTS {Gamma} 

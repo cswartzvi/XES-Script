@@ -33,6 +33,10 @@ sub alter_input{
    elsif ( $template_key eq 'gs_template'){
       $outdir =  $var{gs_outdir};
    }
+   #Recall that there are multiple gw templates
+   elsif ( $template_key =~ /gw.*_template/){
+      $outdir =  $var{gw_outdir};
+   }
    else {
       die " ERROR: Template key $template_key not vaild : $!";
    }
