@@ -12,18 +12,16 @@ celldm            = 23.5170
 pseudo_dir        = ./
 
 #previous MD SIulation Information
-md_dir            = /home/charles/Desktop/Research/XES_Project/Scripts/test-dir 
-md_xml            = /home/charles/Desktop/Research/XES_Project/Scripts/test-dir/data-file.xml
+md_dir            = /home/charles/Desktop/Research/XES_Project/test-dir 
+md_xml            = /home/charles/Desktop/Research/XES_Project/test-dir/data-file.xml
 
 #Data for the Groundstate Calculations
 gs_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/gs.in
 gs_outdir         = Data-Files_GS
-gs_qe             = TBD 
 
 #Data for the CHMD Calculations
 chmd_template     = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/chmd.in
 chmd_outdir       = Data-Files_CHMD
-chmd_qe           = TBD 
 
 #Values for the GW Calculations
 gw_pw_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/pw.template
@@ -32,8 +30,11 @@ gw_cp_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templa
 gw_cpnscf_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/cp-nscf.template
 gw_template          = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/gw-lf.template
 gw_outdir            = Data-Files_GW
-gw_qe                = TBA 
 
-#Submit script template
+#Jobs control vaiables
 submit_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/submit.cmd
 para_prefix       = aprun
+para_flags        = -n
+cp_qe             = TBD 
+pw_qe             = TBD
+gw_qe             = TBD 
