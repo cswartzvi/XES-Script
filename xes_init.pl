@@ -15,7 +15,7 @@ use File::Copy qw(copy);
 
 #TODO set this require by a small bash 'configure' script
 require '/home/charles/Desktop/Research/XES_Project/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/Scripts/alter_template.pm';
+require '/home/charles/Desktop/Research/XES_Project/Scripts/create_input.pm';
 require '/home/charles/Desktop/Research/XES_Project/Scripts/create_qsub.pm';
 my $exe_home = '/home/charles/Desktop/Research/XES_Project/Scripts';
 
@@ -52,11 +52,6 @@ my @atoms = <$atoms_fh>;
 close($atoms_fh);
 #---------------------------------------------------------
 
-#---------------------------------------------------------
-# Update the Ground-State input template 
-#---------------------------------------------------------
-&alter_input(\%var, 'gs_template');
-#---------------------------------------------------------
 
 foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
    
@@ -102,15 +97,20 @@ foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
             print 'H  '.$value;
       }
    }
-   select STDIN;
+   select STDOUT;
    close ($atomic_pos_fh);
    #----------------------------------------------
 
    #----------------------------------------------
    # Copy/append the GS template with atomic positions
    #----------------------------------------------
-   #Copy Groundstate Template (test portability) and open file
-   copy $var{gs_template}, $cur_dir.'/gs.in' ;
+   &create_input($var{gs_template}, $cur_dir.'/gs.in', 
+      'prefix'         => $var{prefix},
+      'pseudo_dir'     => $var{pseudo_dir},
+      'outdir'         => $var{gs_outdir},
+      'nat'            => $var{nat},
+      'celldm(1)'      => $var{celldm},
+      'nbnd'           => $var{val_bands});
    
    # Append the Groundstate input File
    system("cat $atomic_pos_file >> $cur_dir'/gs.in'");

@@ -10,18 +10,18 @@
   etot_conv_thr = 1.D-6,
   ekin_conv_thr = 5.D-5,
   max_seconds   = 1700,
-  prefix = water
-  pseudo_dir = ./
-  outdir = ./Data-Files_GW
+  prefix        = water
+  pseudo_dir    = ./
+  outdir        = ./Data-Files_GW
 /
 &SYSTEM
-  ibrav     =  1,
-  celldm(1) = 23.5170
-  nat = 192
-  ntyp      = 2,
-  nbnd      = 512
-  ecutwfc   = 71.0D0
-  tot_charge= +1
+  ibrav         =  1,
+  celldm(1)     = 23.5170
+  nat           = 192
+  ntyp          = 2,
+  nbnd          = 512
+  ecutwfc       = 71.0D0
+  tot_charge    = +1
 /
 &ELECTRONS
   emass             = 400.D0,
@@ -49,7 +49,8 @@
   neigh = 46,
 /
 ATOMIC_SPECIES
-O  MASSO!!  PPO!!
-H  MASSH!!  PPH!!
+OO 15.9994  o+.pbe.tm.ncpp.rcut1.1.upf
+O  15.9994  O.pbe-mt.UPF
+H  1.00794  H_MT_PBE.UPF
 
 ATOMIC_POSITIONS {bohr}

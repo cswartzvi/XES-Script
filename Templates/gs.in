@@ -7,20 +7,19 @@
   dt            = 4.D0,
   etot_conv_thr = 1.D-6,
   max_seconds   = 1700,
-  tprnfor       =  .TRUE.
-  prefix = water
-  pseudo_dir = ./
-  outdir = ./Data-Files_GS
+  tprnfor       = .TRUE.
+  prefix        = 
+  pseudo_dir    = 
+  outdir        = 
 /
 &SYSTEM
-  ibrav      =  1,
-  celldm(1) = 23.5170
-  nat = 192
-  ntyp      = 3,
-  ntyp      = 3,
-  nbnd      = 256, 
-  ecutwfc   = 71.0D0
-  tot_charge = 1,
+  ibrav         =  1,
+  celldm(1)     = 
+  nat           = 192
+  ntyp          = 3,
+  nbnd          =  
+  ecutwfc       = 71.0D0
+  tot_charge    = 1,
 /
 &ELECTRONS
   emass             = 300.D0,

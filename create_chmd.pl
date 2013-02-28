@@ -20,8 +20,7 @@ use Cwd 'cwd';
 
 #TODO configure script should adjust these
 require '/home/charles/Desktop/Research/XES_Project/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/Scripts/alter_template.pm';
-require '/home/charles/Desktop/Research/XES_Project/Scripts/alter_template.pm';
+require '/home/charles/Desktop/Research/XES_Project/Scripts/create_input.pm';
 
 #Cuurent Number of the Excited Atom
 my $num = shift @ARGV;
@@ -53,6 +52,26 @@ system("cp -r $var{gs_outdir}/* $var{chmd_outdir}") ;
 #----------------------------------------------
 
 #----------------------------------------------
+# Copy/append the CHMD template with atomic positions
+#----------------------------------------------
+&create_input($var{chmd_template}, $cur_dir.'/chmd.in', 
+   'prefix'         => $var{prefix},
+   'pseudo_dir'     => $var{pseudo_dir},
+   'outdir'         => $var{chmd_outdir},
+   'nat'            => $var{nat},
+   'celldm(1)'      => $var{celldm},
+   'nbnd'           => $var{val_bands});
+
+# Append the CHMD input File with 
+# atomic_init_pos.dat from create_gs.pl
+my $atomic_pos_file = './init_atomic_pos.dat';
+if ( ! -e  $atomic_pos_file ){
+   die " ERROR: $atomic_pos_file Not Found in $cur_dir";
+}
+system("cat $atomic_pos_file >> chmd.in");
+#----------------------------------------------
+
+#----------------------------------------------
 # Open all Files
 #----------------------------------------------
 #XML File from the previous GS Calculation
@@ -79,27 +98,6 @@ my @stauM = &open_read($var{md_dir}.'/stau_STEPM.dat');
 
 #Open the svel STEPM from the MD_Simulation
 my @svelM = &open_read($var{md_dir}.'/svel_STEPM.dat');
-#----------------------------------------------
-
-#---------------------------------------------------------
-# Update the Ground-State input template 
-#---------------------------------------------------------
-&alter_input(\%var, 'chmd_template');
-#---------------------------------------------------------
-
-#----------------------------------------------
-# Copy/append the CHMD template with atomic positions
-#----------------------------------------------
-#Copy CHMD Template (test portability) and open file
-copy $var{chmd_template}, $cur_dir.'/chmd.in' ;
-
-# Append the CHMD input File with 
-# atomic_init_pos.dat from create_gs.pl
-my $atomic_pos_file = './init_atomic_pos.dat';
-if ( ! -e  $atomic_pos_file ){
-   die " ERROR: $atomic_pos_file Not Found in $cur_dir";
-}
-system("cat $atomic_pos_file >> chmd.in");
 #----------------------------------------------
 
 #----------------------------------------------

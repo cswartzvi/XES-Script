@@ -22,6 +22,7 @@ sub read_variables{
    open my $fh, '<', $input_file or die " ERROR: Cannot Open $input_file : $!";
 
    #Set Defaults for the main variables
+   #TODO Remove some of these and read directly form output file
    my %var = (
       config_start         => 1,
       config_stop          => 64,
@@ -30,6 +31,8 @@ sub read_variables{
       prefix               => '',
       numO                 => 64,
       numH                 => 128,
+      val_bands            => 256,
+      con_bands            => 256,
       celldm               => '',
       pseudo_dir           => '',
       md_dir               => '', 
@@ -52,6 +55,8 @@ sub read_variables{
       gw_qe                => '',
    );
 
+   #Total Bands
+   $var{tot_bands} = $var{val_bands} + $var{con_bands};
    #Total Atoms
    $var{nat} = $var{numO} + $var{numH};
 

@@ -22,7 +22,7 @@ use File::Copy qw(copy);
 use Cwd 'cwd';
 
 require '/home/charles/Desktop/Research/XES_Project/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/Scripts/alter_template.pm';
+require '/home/charles/Desktop/Research/XES_Project/Scripts/create_input.pm';
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
@@ -43,18 +43,6 @@ if (! -e $chmd_out){
 #---------------------------------------------------------
 
 #---------------------------------------------------------
-#Hash Tags for the GW template files
-#---------------------------------------------------------
-my @templates;
-while (my ($key, $value) = each %var){
-   if ($key =~ /gw.*_template/){
-      push @templates, $key; 
-   }
-}
-print "TEST: @templates \n";
-#---------------------------------------------------------
-
-#---------------------------------------------------------
 #GW Outdir: Check, clean or create,
 #---------------------------------------------------------
 if ( -d $var{gw_outdir} ){ 
@@ -66,20 +54,11 @@ else {
 #---------------------------------------------------------
 
 #---------------------------------------------------------
-# Update the Ground-State input template 
-#---------------------------------------------------------
-for (@templates){
-   &alter_input(\%var, $_);
-}
-#---------------------------------------------------------
-
-#---------------------------------------------------------
 # Open CHMD Output File
 #---------------------------------------------------------
 #Read in the previous CHMD Calculation
 open my $chmd_out_fh, '<', $chmd_out or die " ERROR: Cannot Open File $chmd_out: $!";
 #---------------------------------------------------------
-
 
 #---------------------------------------------------------
 # Get the correct atomic postions and append to all template files 
@@ -88,7 +67,7 @@ my $ncount = 1;
 
 #Copy all the gw templates into gw_1.in*, gw_2.in*, ... , gw_5.in*
 #(See above for description of each)
-&copy_gw_templates($ncount, \%var, \@templates);
+&copy_gw_templates($ncount, \%var);
 
 #First setup should be BEFORE the CHMD (i.e init_atomic_pos)
 my $atomic_pos_file = './init_atomic_pos.dat';
@@ -107,7 +86,7 @@ while (my $line = <$chmd_out_fh>){
 
       #Update counter and copy to the new files
       $ncount++;
-      &copy_gw_templates($ncount, \%var, \@templates);
+      &copy_gw_templates($ncount, \%var);
 
       my @temp;
       $line = <$chmd_out_fh>;   
@@ -151,31 +130,51 @@ sub copy_gw_templates{
    my $var_ref =shift @_;
    my %var = %$var_ref; 
 
-   #Templates array
-   my $array_ref = shift @_;
-   my @array = @$array_ref;
+   #Create the PWscf Calculation (val_bands):
+   &create_input($var{gw_pw_template}, 'gw_1.in'.$num, 
+      'prefix'         => $var{prefix},
+      'pseudo_dir'     => $var{pseudo_dir},
+      'outdir'         => $var{gw_outdir},
+      'nat'            => $var{nat},
+      'celldm(1)'      => $var{celldm},
+      'nbnd'           => $var{val_bands});
 
-   foreach my $key (@array){
+   #Create the CPscf Calculation (val_bands):
+   &create_input($var{gw_cp_template}, 'gw_2.in'.$num, 
+      'prefix'         => $var{prefix},
+      'pseudo_dir'     => $var{pseudo_dir},
+      'outdir'         => $var{gw_outdir},
+      'nat'            => $var{nat},
+      'celldm(1)'      => $var{celldm},
+      'nbnd'           => $var{val_bands});
 
-      if ($key =~ /gw_pw_template/){ 
-         copy $var{$key}, cwd().'/gw_1.in'.$num;
-      }
-      elsif ($key =~ /gw_cp_template/){ 
-         copy $var{$key}, cwd().'/gw_2.in'.$num;
-      }
-      elsif ($key =~ /gw_pwnscf_template/){ 
-         copy $var{$key}, cwd().'/gw_3.in'.$num;
-      }
-      elsif ($key =~ /gw_cpnscf_template/){ 
-         copy $var{$key}, cwd().'/gw_4.in'.$num;
-      }
-      elsif ($key =~ /gw_template/){ 
-         copy $var{$key}, cwd().'/gw_5.in'.$num;
-      }
-      else {
-         die " ERROR: Copying the GW Templates: $!"
-      }
-   }
+   #Create the PWnscf Calculation (tot_bands):
+   &create_input($var{gw_pwnscf_template}, 'gw_3.in'.$num, 
+      'prefix'         => $var{prefix},
+      'pseudo_dir'     => $var{pseudo_dir},
+      'outdir'         => $var{gw_outdir},
+      'nat'            => $var{nat},
+      'celldm(1)'      => $var{celldm},
+      'nbnd'           => $var{tot_bands});
+
+   #Create the CPnscf Calculation (tot_bands):
+   &create_input($var{gw_cpnscf_template}, 'gw_4.in'.$num, 
+      'prefix'         => $var{prefix},
+      'pseudo_dir'     => $var{pseudo_dir},
+      'outdir'         => $var{gw_outdir},
+      'nat'            => $var{nat},
+      'celldm(1)'      => $var{celldm},
+      'nbnd'           => $var{tot_bands});
+
+   #Create the GW-lf Calculation (tot_bands AND val_bands):
+   &create_input($var{gw_template}, 'gw_5.in'.$num, 
+      'prefix'         => $var{prefix},
+      'pseudo_dir'     => $var{pseudo_dir},
+      'outdir'         => $var{gw_outdir},
+      'nat'            => $var{nat},
+      'celldm(1)'      => $var{celldm},
+      'nbnd'           => $var{tot_bands},
+      'vnbsp'          => $var{val_bands});
 
 } 
 
