@@ -21,8 +21,10 @@ sub read_variables{
    my ($input_file) = @_;
    open my $fh, '<', $input_file or die " ERROR: Cannot Open $input_file : $!";
 
+   #------------------------------------------------------
    #Set Defaults for the main variables
    #TODO Remove some of these and read directly form output file
+   #------------------------------------------------------
    my %var = (
       config_start         => 1,
       config_stop          => 64,
@@ -54,15 +56,12 @@ sub read_variables{
       cp_qe                => '',
       gw_qe                => '',
    );
+   #------------------------------------------------------
 
-   #Total Bands
-   $var{tot_bands} = $var{val_bands} + $var{con_bands};
-   #Total Atoms
-   $var{nat} = $var{numO} + $var{numH};
 
-   #TODO check the para_flags element
-
+   #------------------------------------------------------
    #Loop through the input file
+   #------------------------------------------------------
    while (defined(my $line = <$fh>)){
       chomp($line);
 
@@ -79,13 +78,29 @@ sub read_variables{
       }
 
    }
+   #------------------------------------------------------
 
+   #------------------------------------------------------
+   # Add a few values
+   #------------------------------------------------------
+   #TODO check the para_flags element
+   #Total Bands
+   $var{tot_bands} = $var{val_bands} + $var{con_bands};
+   #Total Atoms
+   $var{nat} = $var{numO} + $var{numH};
+   #------------------------------------------------------
+
+   #------------------------------------------------------
+   # Input Check 
+   # TODO Remove this Input Check
+   #------------------------------------------------------
    print " Input Check:\n";
    #TODO Check to make sure none of the variables are undefined
    while (my ($key, $value) = each %var){
       #TODO Remove input check!
       print "  \$var\{$key\} => $value \n"; 
    }
+   #------------------------------------------------------
  
    close($fh);
    return %var;

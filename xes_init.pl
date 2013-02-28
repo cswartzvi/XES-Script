@@ -92,6 +92,10 @@ foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
             print 'O  '.$value;
             $Ocount++;
          }
+         else {
+            #Still need to move the counter along
+            $Ocount++;
+         }
       }
       else {
             print 'H  '.$value;

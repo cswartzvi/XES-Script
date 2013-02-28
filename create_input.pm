@@ -24,6 +24,9 @@ sub create_input{
       die " ERROR: create_input called with no input "
    }
 
+   #Input varaibles that MUST be Quoted!
+   my @quoted = qw# prefix pseudo_dir outdir#;
+
    #Invocation variables
    my $temp_file = shift @_;
    my $file = shift @_;
@@ -48,10 +51,24 @@ sub create_input{
    FILE_LOOP: foreach my $line (@template) {
       while (my ($key, $value) = each %replace){
 
+         #Check to see if the $value needs to quoted
+         my $quotes = 0;
+         foreach (@quoted){
+            if ($key eq $_){
+               $quotes = 1;
+            }
+         }
+
          my $temp_key = quotemeta $key;
          #Find the lines that need to be changed
          if ( $line =~ /$temp_key/ ){
-            printf "  %-13s = %-10s \n", $key, $value;      
+            
+            if ($quotes){
+               printf "  %-13s = \"%s\" \n", $key, $value;      
+            }
+            else{
+               printf "  %-13s = %-10s \n", $key, $value;      
+            }
 
             #Reset the keys iterator
             keys %replace;

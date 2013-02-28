@@ -75,7 +75,7 @@ system("cat $atomic_pos_file >> chmd.in");
 # Open all Files
 #----------------------------------------------
 #XML File from the previous GS Calculation
-my $gs_xml =  $var{gs_outdir}.'/data-file.xml';
+my $gs_xml =  $var{gs_outdir}.'/'.$var{prefix}.'_50.save/data-file.xml';
 open my $gs_xml_fh, '<', $gs_xml 
    or die " ERROR: Cannot Open $gs_xml ($!)"; 
 

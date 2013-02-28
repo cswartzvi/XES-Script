@@ -80,7 +80,7 @@ fi
 # CHMD Calculations
 #***********************************************************
 ${exe_home}/create_chmd.pl $num
-if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < gs.in > gs.out; then
+if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < chmd.in > chmd.out; then
    echo "CHMD Calculation Complete..."
 else
    echo "CHMD Calculation Failed!!"
@@ -96,7 +96,7 @@ ${exe_home}/create_gw.pl
 
 
 GWcount=1
-while 1; do
+while (1); do
 
    echo ""
    echo "GW Calculation: \$GWCount"
@@ -137,7 +137,7 @@ while 1; do
 
    #Copy the valence band wannier centers into fort.408
    #TODO Remove this hard-code for the valence bands
-   tail -512 $var{gw_outdir}/$var{prefix}.wfc > fort.407
+   tail -$var{val_bands} $var{gw_outdir}/$var{prefix}.wfc > fort.408
    #-----------------------------------
 
    #-----------------------------------
@@ -167,8 +167,7 @@ while 1; do
    fi
 
    #copy the total wannier centers to fort.407
-   #TODO Remove this hard-code for the total bands
-   tail -256 $var{gw_outdir}/$var{prefix}.wfc > fort.408 
+   tail -$var{tot_bands} $var{gw_outdir}/$var{prefix}.wfc > fort.407
    #-----------------------------------
    
    #-----------------------------------
@@ -178,7 +177,7 @@ while 1; do
    #         fort.407               --> Total wannier centers (valence and conduction)
    #         fort.408               --> Valence Wannier Centers
    #-----------------------------------
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_4.in\${GWcount} > gw_4.out\${GWcount}; then
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_5.in\${GWcount} > gw_5.out\${GWcount}; then
       echo "GW Calculation Complete ..."
    else
       echo "GW Calculation Failed!!"
