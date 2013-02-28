@@ -1,41 +1,43 @@
 #Number of configurations
 config_start      = 1
-config_stop       = 64
-procs             = 128
-procs_gw          = 512
+config_stop       = 1
+procs             = 4
+procs_gw          = 8
 
 #Some Set-up information
 prefix            = water
-numO              = 64
-numH              = 128
-celldm            = 23.5170
-pseudo_dir        = ./
+numO              = 1
+numH              = 2
+celldm            = 20.00
+pseudo_dir        = ../../../Research_Software/pseudo
+val_bands         = 4
+con_bands         = 4
 
 
 #previous MD SIulation Information
-md_dir            = /home/charles/Desktop/Research/XES_Project/test-dir 
-md_xml            = /home/charles/Desktop/Research/XES_Project/test-dir/data-file.xml
+md_dir            = /home/charles/Desktop/Research/XES_Project/Test-MD/
+md_xml            = /home/charles/Desktop/Research/XES_Project/Test-MD/Orig-MD/temp-CP/water_50.save/data-file.xml
 
 #Data for the Groundstate Calculations
-gs_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/gs.in
+gs_template       = /home/charles/Desktop/Research/XES_Project/Templates/gs.in
 gs_outdir         = Data-Files_GS
 
 #Data for the CHMD Calculations
-chmd_template     = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/chmd.in
+chmd_template     = /home/charles/Desktop/Research/XES_Project/Templates/chmd.in
 chmd_outdir       = Data-Files_CHMD
 
 #Values for the GW Calculations
-gw_pw_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/pw.template
-gw_pwnscf_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/pw-nscf.template
-gw_cp_template       = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/cp.template
-gw_cpnscf_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/cp-nscf.template
-gw_template          = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/gw-lf.template
+gw_pw_template       = /home/charles/Desktop/Research/XES_Project/Templates/pw.template
+gw_pwnscf_template   = /home/charles/Desktop/Research/XES_Project/Templates/pw-nscf.template
+gw_cp_template       = /home/charles/Desktop/Research/XES_Project/Templates/cp.template
+gw_cpnscf_template   = /home/charles/Desktop/Research/XES_Project/Templates/cp-nscf.template
+gw_template          = /home/charles/Desktop/Research/XES_Project/Templates/gw-lf.template
 gw_outdir            = Data-Files_GW
 
 #Jobs control vaiables
 submit_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/submit.cmd
-para_prefix       = aprun
-para_flags        = -n
-cp_qe             = TBD 
-pw_qe             = TBD
-gw_qe             = TBD 
+para_prefix       = mpirun 
+para_flags        = -np
+cp_qe             = /home/charles/Desktop/Research/Research_Software/Main-git_ffn2-4.3.2_tsvdw/bin/cp.x
+pw_qe             = /home/charles/Desktop/Research/Research_Software/Main-git_ffn2-4.3.2_tsvdw/bin/pw.x 
+gw_qe             = /home/charles/Desktop/Research/Research_Software/cohsex_lf/bin/cp.x

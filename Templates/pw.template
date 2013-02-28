@@ -13,7 +13,7 @@
   ibrav         = 1,
   celldm(1)     = 23.5170
   nat           = 192
-  ntyp          = 2,
+  ntyp          = 3,
   ecutwfc       = 71.0,
   nosym         = .true.,
   nbnd          = 256

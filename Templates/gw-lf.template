@@ -17,7 +17,7 @@
   ibrav         =  1,
   celldm(1)     = 23.5170
   nat           = 192
-  ntyp          = 2,
+  ntyp          = 3,
   nbnd          = 512
   ecutwfc       = 71.0D0,
   tot_charge    = +1
