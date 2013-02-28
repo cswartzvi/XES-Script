@@ -11,6 +11,7 @@ numH              = 128
 celldm            = 23.5170
 pseudo_dir        = ./
 
+
 #previous MD SIulation Information
 md_dir            = /home/charles/Desktop/Research/XES_Project/test-dir 
 md_xml            = /home/charles/Desktop/Research/XES_Project/test-dir/data-file.xml
