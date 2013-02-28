@@ -21,8 +21,8 @@ use 5.0120;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 
-require '/home/charles/Desktop/Research/XES_Project/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
@@ -30,7 +30,7 @@ require '/home/charles/Desktop/Research/XES_Project/Scripts/create_input.pm';
 if (! -e './input-file.in'){
    die " ERROR Input File Not Specified : $!";
 }
-my %var = &read_variables('./input-file.in');
+my %var = &read_variables(0, './input-file.in');
 #---------------------------------------------------------
 
 #---------------------------------------------------------

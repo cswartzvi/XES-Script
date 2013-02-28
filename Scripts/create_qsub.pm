@@ -68,8 +68,9 @@ cd $pathname
 #***********************************************************
 #Run the Groundstate Calculation
 #***********************************************************
+echo "GS Calculation Started..."
 if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < gs.in > gs.out; then
-   echo "GS Calculation Complete..."
+   echo "...GS Calculation Complete"
 else
    echo "GS Calculation Failed!!"
    ecit
@@ -80,8 +81,9 @@ fi
 # CHMD Calculations
 #***********************************************************
 ${exe_home}/create_chmd.pl $num
+echo "CHMD Calculation Started..."
 if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < chmd.in > chmd.out; then
-   echo "CHMD Calculation Complete..."
+   echo "...CHMD Calculation Complete"
 else
    echo "CHMD Calculation Failed!!"
    exit
@@ -96,7 +98,7 @@ ${exe_home}/create_gw.pl
 
 
 GWcount=1
-while (1); do
+while [ 1 ]; do
 
    echo ""
    echo "GW Calculation: \$GWCount"
@@ -109,8 +111,9 @@ while (1); do
    #-----------------------------------
    #Submit the PWscf Calculation
    #-----------------------------------
+   echo "PWscf Calculation Started..."
    if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < gw_1.in\${GWcount} > gw_1.out\${GWcount} ; then
-     echo "PWscf Calculation Complete..."
+     echo "...PWscf Calculation Complete"
    else
      echo"PWscf Calculation Failed!!!"
      exit
@@ -125,8 +128,9 @@ while (1); do
    #Submit the CP Ground State
    #Restart: $var{prefix}_50.save (Copied from PW calculation)
    #-----------------------------------
+      echo "CP Calculation Started..."
    if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_2.in\${GWcount} > gw_2.out\${GWcount}; then
-      echo "CP Calculation Complete..."
+      echo "...CP Calculation Complete"
    else
       echo "CP Calculation Failed!!"
       exit
@@ -144,8 +148,9 @@ while (1); do
    #Submit PWnscf Calculation
    #Restart: $var{prefix}.save (From PWscf Calculation: no need to do anything)
    #-----------------------------------
+      echo "PWnscf Calculation Started..."
    if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < gw_3.in\${GWcount} > gw_3.out\${GWcount}; then
-      echo "PWnscf Calculation Complete..."
+      echo "...PWnscf Calculation Complete"
    else
       echo "PWnscf Calculation Failed!!"
       exit
@@ -159,8 +164,9 @@ while (1); do
    #Submit CPnscf Calculation
    #Restart: $var{prefix}_50.save from the PWnscf Calulation
    #-----------------------------------
+      echo "CPnscf Calculation Started..."
    if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_4.in\${GWcount} > gw_4.out\${GWcount}; then
-      echo "CPnscf Calculation Complete..."
+      echo "...CPnscf Calculation Complete"
    else
       echo "CPnscf Calculation Failed!!"
       exit
@@ -177,8 +183,9 @@ while (1); do
    #         fort.407               --> Total wannier centers (valence and conduction)
    #         fort.408               --> Valence Wannier Centers
    #-----------------------------------
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_5.in\${GWcount} > gw_5.out\${GWcount}; then
-      echo "GW Calculation Complete ..."
+   echo "GW Calculation Started ..."
+   if $var{para_prefix} $var{para_flags} $var{procs_gw} $var{gw_qe} < gw_5.in\${GWcount} > gw_5.out\${GWcount}; then
+      echo "GW Calculation Complete"
    else
       echo "GW Calculation Failed!!"
       exit

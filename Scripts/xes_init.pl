@@ -13,11 +13,12 @@ use strict;
 use 5.012;
 use File::Copy qw(copy);
 
-#TODO set this require by a small bash 'configure' script
-require '/home/charles/Desktop/Research/XES_Project/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/Scripts/create_input.pm';
-require '/home/charles/Desktop/Research/XES_Project/Scripts/create_qsub.pm';
-my $exe_home = '/home/charles/Desktop/Research/XES_Project/Scripts';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_qsub.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/xml_data_parse.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/stau_to_tau.pm';
+my $exe_home = '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts';
 
 #---------------------------------------------------------
 # Read in STDIN namelist 
@@ -26,25 +27,21 @@ my $input_file = shift @ARGV ;
 if (! $input_file){
    die " ERROR Input File Not Specified : $!";
 }
-my %var = &read_variables($input_file);
+my %var = &read_variables(1, $input_file);
 #---------------------------------------------------------
 
 #---------------------------------------------------------
 # Parse the xml Data-File from the MD Simulation for STEP0 and STEPM
-#  xml_parse.pl <- data-file-path output-dir (list of tags) ->  list-of-tags-files
 #---------------------------------------------------------
-#TODO Convert this in to a module
-my $test = system("/home/charles/Desktop/Research/XES_Project/Scripts/xml_data_parse.pl $var{md_xml} $var{md_dir} taui force stau svel ht") ;
-if ($test != 0) { die " ERROR: xml_data_parse.pl failed to execute!"};
+&xml_data_parse($var{md_xml}, $var{md_dir}, 'taui', 'force', 'stau', 'svel', 'ht')
+   or die " ERROR: Cannot Parse xml Data!";
 #---------------------------------------------------------
 
 #---------------------------------------------------------
 # Convert stau to tau from the previous MD Simulation
-#  -> stau_to_tau.pl path-to-ht path-to-stau md_dir
 #---------------------------------------------------------
-#TODO Convert this in to a module
-system(" /home/charles/Desktop/Research/XES_Project/Scripts/stau_to_tau.pl $var{md_dir}/ht_STEP0.dat $var{md_dir}/stau_STEP0.dat $var{md_dir}");
-if ($test != 0) { die " ERROR: stau_to_tau.pl failed to execute!"};
+&stau_to_tau( $var{md_dir}.'/ht_STEP0.dat', $var{md_dir}.'/stau_STEP0.dat', $var{md_dir}) 
+   or die " ERROR: Cannot convert stua to tau!";
 
 #Open the atoms.dat created by stau_to_tau read into an array
 open my $atoms_fh, '<', $var{md_dir}.'/atoms.dat' or die " ERROR: Cannot Open File $!";

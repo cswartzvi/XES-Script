@@ -19,8 +19,8 @@ use File::Copy qw(copy);
 use Cwd 'cwd';
 
 #TODO configure script should adjust these
-require '/home/charles/Desktop/Research/XES_Project/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
 
 #Cuurent Number of the Excited Atom
 my $num = shift @ARGV;
@@ -34,7 +34,7 @@ my $cur_dir = cwd();
 if (! -e './input-file.in'){
    die " ERROR Input File Not Specified : $!";
 }
-my %var = &read_variables('./input-file.in');
+my %var = &read_variables(0, './input-file.in');
 #---------------------------------------------------------
 
 #----------------------------------------------

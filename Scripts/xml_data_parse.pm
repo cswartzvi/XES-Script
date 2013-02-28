@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #----------------------------------------------------------------------------
-# This Script will read the data inside XML tags in the QE data-file.xml
+# This Subroutine will read the data inside XML tags in the QE data-file.xml
 #  For STEP0 and STEPM
 #
 # INPUT: 1) XML File Pathname
@@ -15,46 +15,49 @@ use warnings;
 use strict;
 use 5.012;
 
-#Pathname of the XML File
-my $datafile = shift @ARGV;
-open my $fh, '<', $datafile or die " ERROR: Cannnot Open File ($!)";
+sub xml_data_parse{
+   #Pathname of the XML File
+   my $datafile = shift @_;
+   open my $fh, '<', $datafile or die " ERROR: Cannnot Open File ($!)";
 
-#Find the Directory where the out put is to go
-my $dir = shift @ARGV;
-$dir =~ s/\/\z//;
+   #Find the Directory where the out put is to go
+   my $dir = shift @_;
+   $dir =~ s/\/\z//;
 
-#Tags to find in each main STEP tag
-#Usually force taui stau svel ht
-my @tag_list = @ARGV;
-my @step_types = qw( STEP0 STEPM );
+   #Tags to find in each main STEP tag
+   #Usually force taui stau svel ht
+   my @tag_list = @_;
+   my @step_types = qw( STEP0 STEPM );
 
-#----------------------------------------------
-#Read the data-file.xml
-#----------------------------------------------
-while (defined(my $line = <$fh>)){
+   #----------------------------------------------
+   #Read the data-file.xml
+   #----------------------------------------------
+   while (defined(my $line = <$fh>)){
 
-   #Loop through both the current tag and the previous Steps
-   foreach my $step (@step_types){
+      #Loop through both the current tag and the previous Steps
+      foreach my $step (@step_types){
 
-      if ($line =~ /<$step>/){
-         while ( $line !~ /<\/$step>/){
+         if ($line =~ /<$step>/){
+            while ( $line !~ /<\/$step>/){
 
-            #loop through the tag
-            &tag_loop($line, $step, $dir, @tag_list);
+               #loop through the tag
+               &tag_loop($fh, $line, $step, $dir, @tag_list);
 
-            #Read the Next Line
-            $line = <$fh>;
+               #Read the Next Line
+               $line = <$fh>;
+            }
          }
+
       }
-
    }
-}
+   close($fh);
 
-############################################################################
+}
+   ############################################################################
 
 sub tag_loop{
 
-   my ($line, $step, $dir, @tag_list) = @_;
+   my ($fh, $line, $step, $dir, @tag_list) = @_;
 
          foreach my $tag (@tag_list){
             if ( $line =~ /<$tag(>|\s.*>)/ ){
@@ -79,3 +82,4 @@ sub tag_loop{
             }
          }
 }
+1;

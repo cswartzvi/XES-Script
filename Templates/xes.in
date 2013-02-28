@@ -13,6 +13,8 @@ pseudo_dir        = ../../../Research_Software/pseudo
 val_bands         = 4
 con_bands         = 4
 
+#Template Directrory
+template_dir      = /home/charles/Desktop/Research/XES_Project/Test-MD/
 
 #previous MD SIulation Information
 md_dir            = /home/charles/Desktop/Research/XES_Project/Test-MD/
@@ -35,7 +37,7 @@ gw_template          = /home/charles/Desktop/Research/XES_Project/Templates/gw-l
 gw_outdir            = Data-Files_GW
 
 #Jobs control vaiables
-submit_template   = /home/charles/Desktop/Research/XES_Project/Scripts/Templates/submit.cmd
+submit_template   = /home/charles/Desktop/Research/XES_Project/Scripts/submit.cmd
 para_prefix       = mpirun 
 para_flags        = -np
 cp_qe             = /home/charles/Desktop/Research/Research_Software/Main-git_ffn2-4.3.2_tsvdw/bin/cp.x
