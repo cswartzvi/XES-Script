@@ -17,7 +17,6 @@
 
 use warnings;
 use strict;
-use 5.0120;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 

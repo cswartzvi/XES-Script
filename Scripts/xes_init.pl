@@ -10,7 +10,6 @@
 
 use warnings;
 use strict;
-use 5.012;
 use File::Copy qw(copy);
 
 require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
@@ -83,10 +82,10 @@ foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
 
    #print the Rest of the Atoms
    my $Ocount = 0;
-   while (my ($index, $value) = each @atoms){
+   foreach my $index (0 .. $#atoms){
       if ( $Ocount < $var{numO}) {
          if ( $index != ($ncount - 1) ) {
-            print 'O  '.$value;
+            print 'O  '.$atoms[$index];
             $Ocount++;
          }
          else {
@@ -95,7 +94,7 @@ foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
          }
       }
       else {
-            print 'H  '.$value;
+            print 'H  '.$atoms[$index];
       }
    }
    select STDOUT;

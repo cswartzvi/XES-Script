@@ -14,7 +14,6 @@
 use warnings;
 use strict;
 use diagnostics;
-use 5.0120;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 
@@ -80,7 +79,7 @@ open my $gs_xml_fh, '<', $gs_xml
    or die " ERROR: Cannot Open $gs_xml ($!)"; 
 
 #XML File for the CHMD
-my $chmd_xml =  $var{chmd_outdir}.'/data-file.xml';
+my $chmd_xml =  $var{chmd_outdir}.'/'.$var{prefix}.'_50.save/data-file.xml';
 open my $chmd_xml_fh, '>', $chmd_xml 
    or die " ERROR: Cannot Open $chmd_xml ($!)"; 
 select $chmd_xml_fh;

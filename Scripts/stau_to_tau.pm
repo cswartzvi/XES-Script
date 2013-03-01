@@ -12,7 +12,6 @@
 
 use warnings;
 use strict;
-use 5.012;
 
 sub stau_to_tau{
    #unit cell matirx, scaled and real coordinates

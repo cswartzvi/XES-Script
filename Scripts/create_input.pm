@@ -13,7 +13,6 @@
 
 use warnings;
 use strict;
-use 5.012;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 

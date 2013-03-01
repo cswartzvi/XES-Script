@@ -13,7 +13,6 @@
 
 use warnings;
 use strict;
-use 5.012;
 
 sub xml_data_parse{
    #Pathname of the XML File
