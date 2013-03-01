@@ -43,17 +43,6 @@ if (! -e $chmd_out){
 #---------------------------------------------------------
 
 #---------------------------------------------------------
-#GW Outdir: Check, clean or create,
-#---------------------------------------------------------
-if ( -d $var{gw_outdir} ){ 
-   unlink glob "$var{gw_outdir}/*" or warn " WARNING: Cannot delete contents of Directory $var{gw_outdir}:$!";
-}
-else {
-   mkdir $var{gw_outdir}, 0755 or die " ERROR: Cannot Create Directory $var{gw_outdir}:$!";
-}
-#---------------------------------------------------------
-
-#---------------------------------------------------------
 # Open CHMD Output File
 #---------------------------------------------------------
 #Read in the previous CHMD Calculation
@@ -68,6 +57,9 @@ my $ncount = 1;
 #Copy all the gw templates into gw_1.in*, gw_2.in*, ... , gw_5.in*
 #(See above for description of each)
 &copy_gw_templates($ncount, \%var);
+
+#Create the outdir
+&create_dir($var{gw_output}.'_'.$ncount);
 
 #First setup should be BEFORE the CHMD (i.e init_atomic_pos)
 my $atomic_pos_file = './init_atomic_pos.dat';
@@ -84,9 +76,10 @@ while (my $line = <$chmd_out_fh>){
   
    if ($line =~ /ATOMIC_POSITIONS/){
 
-      #Update counter and copy to the new files
+      #Update counter and copy to the new files and create new directroy
       $ncount++;
       &copy_gw_templates($ncount, \%var);
+      &create_dir($var{gw_output}.'_'.$ncount);
 
       my @temp;
       $line = <$chmd_out_fh>;   
@@ -178,3 +171,19 @@ sub copy_gw_templates{
 
 } 
 
+sub create_dir{
+
+   #current directory
+   my $gw_outdir = shift @_;
+
+   #---------------------------------------------------------
+   #GW Outdir: Check, clean or create,
+   #---------------------------------------------------------
+   if ( -d $gw_outdir ){ 
+      unlink glob "$gw_outdir/*" or warn " WARNING: Cannot delete contents of Directory $gw_outdir:$!";
+   }
+   else {
+      mkdir $gw_outdir, 0755 or die " ERROR: Cannot Create Directory $gw_outdir:$!";
+   }
+   #---------------------------------------------------------
+}
