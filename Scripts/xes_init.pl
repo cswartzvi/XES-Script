@@ -3,9 +3,9 @@
 # Script to convert to take the gs.in template and create multiple 
 # Ground-State Files with Different Atoms being excited
 #
-# INPUT: 1) 
+# INPUT: 1) Inputfile XES.in 
 #
-# OUTPUT: 1)
+# OUTPUT: 1) 
 #----------------------------------------------------------------------------
 
 use warnings;
@@ -13,12 +13,12 @@ use strict;
 use 5.012;
 use File::Copy qw(copy);
 
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_qsub.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/xml_data_parse.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/stau_to_tau.pm';
-my $exe_home = '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_qsub.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/xml_data_parse.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/stau_to_tau.pm';
+my $exe_home = '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts';
 
 #---------------------------------------------------------
 # Read in STDIN namelist 

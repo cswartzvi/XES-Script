@@ -12,7 +12,7 @@
 # directory created by the create_gs.pl script
 # ---> IF NOT this will not work
 #
-#  INPUT 1) Number of current excited atom
+# INPUT 1) Number of current excited atom
 #---------------------------------------------------------------------------
 
 use warnings;
@@ -21,8 +21,8 @@ use 5.0120;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)

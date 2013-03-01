@@ -21,11 +21,11 @@ md_dir            = /home/charles/Desktop/Research/XES_Project/Test-MD/
 md_xml            = /home/charles/Desktop/Research/XES_Project/Test-MD/Orig-MD/temp-CP/water_50.save/data-file.xml
 
 #Data for the Groundstate Calculations
-gs_template       = /home/charles/Desktop/Research/XES_Project/Templates/gs.in
+gs_template       = /home/charles/Desktop/Research/XES_Project/Templates/gs.template
 gs_outdir         = Data-Files_GS
 
 #Data for the CHMD Calculations
-chmd_template     = /home/charles/Desktop/Research/XES_Project/Templates/chmd.in
+chmd_template     = /home/charles/Desktop/Research/XES_Project/Templates/chmd.template
 chmd_outdir       = Data-Files_CHMD
 
 #Values for the GW Calculations
