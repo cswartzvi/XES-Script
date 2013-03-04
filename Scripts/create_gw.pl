@@ -8,11 +8,16 @@
 # cp_nscf.in      --> gw_4.in*
 # gw_cohsex.in    --> gw_5.in*
 #
-# IMPORTANT: This script is intended to be run from a PBS within the 
-# directory created by the create_gs.pl script
-# ---> IF NOT this will not work
+# This script will also create outdir for different GW calculations using 
+# $var{gw_outdir}.'_'.${GWcount}
 #
-# INPUT 1) Number of current excited atom
+# !!!!!!!!!!!!!!!!!!!!!!!
+# IMPORTANT: This script is intended to be run from a PBS within the 
+# directory created by the xes_init.pl script
+# ---> IF NOT this will not work
+# !!!!!!!!!!!!!!!!!!!!!!!
+#
+# OUTPUT: All the GW input files as above
 #---------------------------------------------------------------------------
 
 use warnings;
@@ -20,8 +25,8 @@ use strict;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
@@ -32,8 +37,12 @@ if (! -e './input-file.in'){
 my %var = &read_variables(0, './input-file.in');
 #---------------------------------------------------------
 
+#---------------------------------------------------------
 #GW Outdir temp value
+# --> GW outdir will be in th form $var{gw_outdir}.'_'.$ncount
+#---------------------------------------------------------
 my $gw_outdir_temp = $var{gw_outdir};
+#---------------------------------------------------------
 
 #---------------------------------------------------------
 # Check the previous output of the CHMD
@@ -56,13 +65,13 @@ open my $chmd_out_fh, '<', $chmd_out or die " ERROR: Cannot Open File $chmd_out:
 #---------------------------------------------------------
 my $ncount = 1;
 
+#Name and create the current GW outdir
+$var{gw_outdir}=$gw_outdir_temp.'_'.$ncount;
+&create_dir($var{gw_outdir});
+
 #Copy all the gw templates into gw_1.in*, gw_2.in*, ... , gw_5.in*
 #(See above for description of each)
-$var{gw_outdir}=$gw_outdir_temp.'_'.$ncount;
 &copy_gw_templates($ncount, \%var);
-
-#Create the outdir
-&create_dir($var{gw_outdir});
 
 #First setup should be BEFORE the CHMD (i.e init_atomic_pos)
 my $atomic_pos_file = './init_atomic_pos.dat';
@@ -79,11 +88,15 @@ while (my $line = <$chmd_out_fh>){
   
    if ($line =~ /ATOMIC_POSITIONS/){
 
-      #Update counter and copy to the new files and create new directroy
+      #Update counter and copy to the new files and create new directory
       $ncount++;
+
+      #Name and create new directory
       $var{gw_outdir}=$gw_outdir_temp.'_'.$ncount;
-      &copy_gw_templates($ncount, \%var);
       &create_dir($var{gw_outdir});
+
+      #Copy all templates to main directory
+      &copy_gw_templates($ncount, \%var);
 
       my @temp;
       $line = <$chmd_out_fh>;   

@@ -120,7 +120,7 @@ while [ 1 ]; do
    
    #Copy the results from $var{prefix}.save to save $var{prefix}_50.save for the CP Ground-State Calculation
    #this will leave the $var{prefix} unchanged for the PW NSCF Calculatiosn later (NOT the GW Calculation)
-   clean_copy $var{gw_outdir}/$var{prefix}.save $var{gw_outdir}/$var{prefix}_50.save
+   clean_copy $var{gw_outdir}_\${GWcount}/$var{prefix}.save $var{gw_outdir}_\${GWcount}/$var{prefix}_50.save
    #-----------------------------------
 
    #-----------------------------------
@@ -136,11 +136,11 @@ while [ 1 ]; do
    fi
 
    #Copy the results into $var{prefix}_36.save (For the GW Calculation)
-   clean_copy $var{gw_outdir}/$var{prefix}_50.save $var{gw_outdir}/$var{prefix}_36.save
+   clean_copy $var{gw_outdir}_\${GWcount}/$var{prefix}_50.save $var{gw_outdir}_\${GWcount}/$var{prefix}_36.save
 
    #Copy the valence band wannier centers into fort.408
    #TODO Remove this hard-code for the valence bands
-   tail -$var{val_bands} $var{gw_outdir}/$var{prefix}.wfc > fort.408
+   tail -$var{val_bands} $var{gw_outdir}_\${GWcount}/$var{prefix}.wfc > fort.408
    #-----------------------------------
 
    #-----------------------------------
@@ -156,7 +156,7 @@ while [ 1 ]; do
    fi
 
    #Copy $var{prefix}.save to $var{prefix}_50.save (NOT for the GW Caluclation)
-   clean_copy $var{gw_outdir}/$var{prefix}.save $var{gw_outdir}/$var{prefix}_50.save
+   clean_copy $var{gw_outdir}_\${GWcount}/$var{prefix}.save $var{gw_outdir}_\${GWcount}/$var{prefix}_50.save
    #-----------------------------------
 
    #-----------------------------------
@@ -172,7 +172,7 @@ while [ 1 ]; do
    fi
 
    #copy the total wannier centers to fort.407
-   tail -$var{tot_bands} $var{gw_outdir}/$var{prefix}.wfc > fort.407
+   tail -$var{tot_bands} $var{gw_outdir}_\${GWcount}/$var{prefix}.wfc > fort.407
    #-----------------------------------
    
    #-----------------------------------
@@ -195,7 +195,8 @@ while [ 1 ]; do
 done
 #***********************************************************
 
-${exe_home}/create_xes.pl
+#TODO: Create the xes script
+#${exe_home}/create_xes.pl
 
 EOF
 #------------------------------------------------------
