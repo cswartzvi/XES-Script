@@ -32,6 +32,9 @@ if (! -e './input-file.in'){
 my %var = &read_variables(0, './input-file.in');
 #---------------------------------------------------------
 
+#GW Outdir temp value
+my $gw_outdir_temp = $var{gw_outdir};
+
 #---------------------------------------------------------
 # Check the previous output of the CHMD
 #---------------------------------------------------------
@@ -55,10 +58,11 @@ my $ncount = 1;
 
 #Copy all the gw templates into gw_1.in*, gw_2.in*, ... , gw_5.in*
 #(See above for description of each)
+$var{gw_outdir}=$gw_outdir_temp.'_'.$ncount;
 &copy_gw_templates($ncount, \%var);
 
 #Create the outdir
-&create_dir($var{gw_output}.'_'.$ncount);
+&create_dir($var{gw_outdir});
 
 #First setup should be BEFORE the CHMD (i.e init_atomic_pos)
 my $atomic_pos_file = './init_atomic_pos.dat';
@@ -77,8 +81,9 @@ while (my $line = <$chmd_out_fh>){
 
       #Update counter and copy to the new files and create new directroy
       $ncount++;
+      $var{gw_outdir}=$gw_outdir_temp.'_'.$ncount;
       &copy_gw_templates($ncount, \%var);
-      &create_dir($var{gw_output}.'_'.$ncount);
+      &create_dir($var{gw_outdir});
 
       my @temp;
       $line = <$chmd_out_fh>;   
