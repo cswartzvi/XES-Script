@@ -17,8 +17,8 @@ use warnings;
 use strict;
 use Cwd 'cwd';
 
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/xml_tag.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/xml_tag.pm';
 
 #Main directory of the XES Program
 my $home = shift @ARGV;

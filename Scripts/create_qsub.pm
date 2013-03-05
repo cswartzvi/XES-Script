@@ -90,7 +90,7 @@ fi
 # CHMD Calculations
 #***********************************************************
 ${exe_home}/create_chmd.pl $num
-echo "CHMD Calculation Started..." | tee $error_log
+echo "CHMD Calculation Started..." | tee -a $error_log
 cd $var{chmd_outdir}
 if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < chmd.in > chmd.out 2> $error_log; then
    echo "...CHMD Calculation Complete"
@@ -112,7 +112,7 @@ GWcount=1
 while [ 1 ]; do
 
    echo ""
-   echo "GW Calculation: \$GWCount" | tee $error_log
+   echo "GW Calculation: \$GWCount" | tee -a $error_log
 
    #-----------------------------------
    #Change to the current directory
@@ -127,7 +127,7 @@ while [ 1 ]; do
    #-----------------------------------
    #Submit the PWscf Calculation
    #-----------------------------------
-   echo "PWscf Calculation Started..." | tee $error_log
+   echo "PWscf Calculation Started..." | tee -a $error_log
    if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < gw_1.in\${GWcount} > gw_1.out\${GWcount} 2> $error_log; then
      echo "...PWscf Calculation Complete"
    else
@@ -144,7 +144,7 @@ while [ 1 ]; do
    #Submit the CP Ground State
    #Restart: $var{prefix}_50.save (Copied from PW calculation)
    #-----------------------------------
-      echo "CP Calculation Started..." | tee $error_log
+      echo "CP Calculation Started..." | tee -a $error_log
    if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_2.in\${GWcount} > gw_2.out\${GWcount} 2> $error_log; then
       echo "...CP Calculation Complete"
    else
@@ -164,7 +164,7 @@ while [ 1 ]; do
    #Submit PWnscf Calculation
    #Restart: $var{prefix}.save (From PWscf Calculation: no need to do anything)
    #-----------------------------------
-      echo "PWnscf Calculation Started..." | tee $error_log
+      echo "PWnscf Calculation Started..." | tee -a $error_log
    if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < gw_3.in\${GWcount} > gw_3.out\${GWcount} 2> $error_log; then
       echo "...PWnscf Calculation Complete"
    else
@@ -180,7 +180,7 @@ while [ 1 ]; do
    #Submit CPnscf Calculation
    #Restart: $var{prefix}_50.save from the PWnscf Calulation
    #-----------------------------------
-      echo "CPnscf Calculation Started..." | tee $error_log
+      echo "CPnscf Calculation Started..." | tee -a $error_log
    if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_4.in\${GWcount} > gw_4.out\${GWcount} 2> $error_log; then
       echo "...CPnscf Calculation Complete"
    else
@@ -199,7 +199,7 @@ while [ 1 ]; do
    #         fort.407               --> Total wannier centers (valence and conduction)
    #         fort.408               --> Valence Wannier Centers
    #-----------------------------------
-   echo "GW Calculation Started ..." | tee $error_log
+   echo "GW Calculation Started ..." | tee -a $error_log
    if $var{para_prefix} $var{para_flags} $var{procs_gw} $var{gw_qe} < gw_5.in\${GWcount} > gw_5.out\${GWcount} 2> $error_log; then
       echo "GW Calculation Complete"
    else
@@ -211,7 +211,7 @@ while [ 1 ]; do
    #-----------------------------------
    # Run the XES
    #-----------------------------------
-   echo "XES Calculations Started ..." | tee $error_log
+   echo "XES Calculations Started ..." | tee -a $error_log
    if ${exe_home}/run_xes.pl ${home} 2> $error_log; then
       echo "XES Calculations Complete"
    else
