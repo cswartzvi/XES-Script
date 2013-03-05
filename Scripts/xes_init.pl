@@ -13,13 +13,14 @@ use strict;
 use File::Copy qw(copy);
 
 #Required Modules
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_input.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_qsub.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/xml_data_parse.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/stau_to_tau.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_qsub.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/xml_data_parse.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/stau_to_tau.pm';
 #Current Home of the Script
-my $exe_home = '/global/homes/c/cswartz/Scripts/XES_Script/Scripts';
+my $home = '/home/charles/Desktop/Research/XES_Project/XES_Program';
+my $exe_home = $home.'/Scripts';
 
 #TODO Remove all hard coded gs, chmd, gw_* strings for the inputs 
 
@@ -133,7 +134,7 @@ foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
    #----------------------------------------------
    # Create PBS Submit Script 
    #----------------------------------------------
-   &create_qsub($ncount, \%var,$cur_dir,$exe_home);
+   &create_qsub($ncount, \%var,$cur_dir,$home, $exe_home);
    #----------------------------------------------
 
 }

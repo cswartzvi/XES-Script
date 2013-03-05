@@ -6,7 +6,8 @@
 # INPUT: 1) Number of the currently excited atom 
 #        2) Hash ref for var
 #        3) Current Directory for the excited atom
-#        4) $exe_home the pathname of the of the scripts directory
+#        4) $home the pathname of the of the main Program directory
+#        5) $exe_home the pathname of the of the scripts directory
 #
 # OUTPUT: 1)
 #----------------------------------------------------------------------------
@@ -28,6 +29,9 @@ sub create_qsub{
    #Absolute Pathname where the PBS File will be ran
    my $current_dir = shift @_;
    my $pathname = cwd().'/'.$current_dir;
+
+   #Pathname of the XES_Program directory
+   my $home = shift @_; 
 
    #Pathname of the scripts directory (because this current script will end before the 
    #the next is executed
@@ -205,6 +209,12 @@ while [ 1 ]; do
    #-----------------------------------
 
    #-----------------------------------
+   # Run the XES
+   #-----------------------------------
+   ${exe_home}/run_xes.pl ${home}
+   #-----------------------------------
+
+   #-----------------------------------
    # Leave Current Directroy
    #-----------------------------------
    cd ..
@@ -213,9 +223,6 @@ while [ 1 ]; do
    GWcount=\$((\$GWcount + 1))
 done
 #***********************************************************
-
-#TODO: Create the xes script
-#${exe_home}/create_xes.pl
 
 EOF
 #------------------------------------------------------
