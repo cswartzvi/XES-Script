@@ -27,26 +27,20 @@ sub xml_tag{
    #Count for two values
    my $ncount;
    while (defined(my $line = <$fh>)){
+      chomp($line);
       
       #if tag is found
       if ($line =~ /<$tag.*>/){
 
          #Get the next line
-         $line = <$fh>;
+         chomp($line = <$fh>);
 
          while ($line !~ /<\/$tag>/){
 
-            #TODO Fix the negative issue with split
-            #Remove the issue with negatives in the first column and split the line
-            $line = ' '.$line;
-            my @temp = split /\s+/, $line;
-
-            foreach (@temp){
-               push @vals, $_;
-            }
+            push @vals, $line;
 
             #get the next line
-            $line = <$fh>;
+            chomp($line = <$fh>);
    
          }
       }

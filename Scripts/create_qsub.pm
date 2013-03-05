@@ -112,7 +112,7 @@ GWcount=1
 while [ 1 ]; do
 
    echo ""
-   echo "GW Calculation: \$GWCount"
+   echo "GW Calculation: \$GWCount" | tee $error_log
 
    #-----------------------------------
    #Change to the current directory
@@ -211,7 +211,12 @@ while [ 1 ]; do
    #-----------------------------------
    # Run the XES
    #-----------------------------------
-   ${exe_home}/run_xes.pl ${home}
+   echo "XES Calculations Started ..." | tee $error_log
+   if ${exe_home}/run_xes.pl ${home} 2> $error_log; then
+      echo "XES Calculations Complete"
+   else
+      echo "XES Calculations Failed (Check $error_log)!!"
+   fi
    #-----------------------------------
 
    #-----------------------------------

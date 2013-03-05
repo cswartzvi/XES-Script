@@ -17,8 +17,8 @@ use warnings;
 use strict;
 use Cwd 'cwd';
 
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/xml_tag.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/xml_tag.pm';
 
 #Main directory of the XES Program
 my $home = shift @ARGV;
@@ -36,8 +36,8 @@ if (! -e '../input-file.in'){
 my %var = &read_variables(0, '../input-file.in');
 #---------------------------------------------------------
 
-#---------------------------------------------------------
-#diag_lambda
+#******************************************************************************
+# diag_lambda.x -> Calculates the diagonal of the lambda matrix
 #
 #  INPUT:   1) cp_lambda -> from cohsex (cp.x)
 #           2) fort.11
@@ -45,15 +45,158 @@ my %var = &read_variables(0, '../input-file.in');
 #
 #  Output:  1) eig_dat -> Eigensvalues (WITH labels)
 #           2) diagonalized lambda matrix
-#---------------------------------------------------------
-#Make fort.11
-open my $fh_11, '>', 'fort.11' or die " ERROR: Cannot Open fort.11: $!";
-#TODO Fix the neative issue with split
-my @gvec = &xml_tag($var{md_xml}, 'MAX_NUMBER_OF_GK-VECTORS'); 
-print $fh_11 "$var{tot_bands} $var{val_bands} $gvec[1]";
+#******************************************************************************
 
-#TODO Remove hard-code
-system ("$home/XES_src/diag_lambda.x");
+    #---------------------------------------------------------
+    #Make fort.11
+    #---------------------------------------------------------
+    my @gvec = &xml_tag($var{md_xml}, 'MAX_NUMBER_OF_GK-VECTORS'); 
+    open my $fh_11, '>', 'fort.11' or die " ERROR: Cannot Open fort.11: $!";
+    
+    print $fh_11 "$var{tot_bands} $var{val_bands} $gvec[0]";
+    close ($fh_11);
+    #---------------------------------------------------------
+    
+    #Run Calculation
+    #TODO Remove hard-code
+    system ("$home/XES_src/diag_lambda.x");
+    
+    #******************************************************************************
 
-#---------------------------------------------------------
 
+#******************************************************************************
+# xes.x -> Calculates the transition matrix
+#
+#  INPUT:   1) fort.10
+#              volume_cell    ao             celldm2          celldm3
+#              Num-Gkvectors  num_val_bands  num_cond_bands
+#              kptx           kpty           kptz
+#              Oxygenx        Oxygeny        Oxygenz
+#           
+#           2) eigv.dat -> remove the header and the val_bands lines of eig.dat (diag_lambda.x)
+#
+#           3) fort.11 -> same as before
+#
+#           3) fort.87  |
+#           5) fort.88  | -> Oxygen core wavefunctions
+#           6) fort.89  | 
+#           7) fort.90  |
+#           
+#           8) g.dat -> from cohsex
+#           9) cp_wf.dat -> from cohsex
+#           10)diag_lambda.dat -> from diag_lambda.x
+#
+#  OUTPUT   1) fort.20  -> Main output file
+#           2) tm_aes.dat -> raw transition matrix data
+#******************************************************************************
+
+   #---------------------------------------------------------
+   # fort.10
+   #---------------------------------------------------------
+   @gvec = &xml_tag($var{md_xml}, 'MAX_NUMBER_OF_GK-VECTORS'); 
+   my @alat = &xml_tag($var{md_xml}, 'LATTICE_PARAMETER'); 
+   
+   open my $fh_10, '>', 'fort.10' or die " ERROR: Cannot Open fort.10: $!";
+   
+   #TODO remove hard codes
+   #atomic postion of excited atom
+   open my $atoms_fh, '<', 'atomic_pos.dat' or die " ERROR: Cannot Open atomic_pos.dat: $!";
+   my $exc_atom = <$atoms_fh>;
+   $exc_atom =~ s/OO//;
+   close($atoms_fh);
+   
+   #omega value (Volume of the cell)
+   open my $omega_fh, '<', '../omega.dat' or die " ERROR: Cannot Open omega.dat: $!";
+   my $omega = <$omega_fh>;
+   close($omega_fh);
+   
+   #Print fort.10
+   select $fh_10;
+   #TODO Add a check for the simple cubic cell
+   print "$omega $alat[0] 1.0 1.0\n";
+   print "$gvec[0] $var{val_bands} $var{con_bands}\n";
+   #TODO Check for kpoints
+   print "0.0 0.0 0.0\n";
+   print $exc_atom;
+   close ($fh_10);
+   #---------------------------------------------------------
+   
+   #---------------------------------------------------------
+   # Copy all Oxygen core wavefunctions
+   #---------------------------------------------------------
+   #TODO Remove hard codes
+   system("cp $home/Oxygen-1s-wf/fort.* .");
+   #---------------------------------------------------------
+   
+   #---------------------------------------------------------
+   # create the eigv.dat file
+   #---------------------------------------------------------
+   my $temp = $var{val_bands} + 1;
+   system (" head -$temp eig.dat | tail -$var{val_bands} > eigv.dat "); 
+   #---------------------------------------------------------
+   
+   #Run Calculation
+   system ("$home/XES_src/xes.x");
+
+#******************************************************************************
+
+#******************************************************************************
+# tmsftaes.x -> shift the spectrum before broadening
+#
+#  INPUT: 1) fort.13
+#              number_val_bands  Total_Energy_First_Oxygen
+#         2) fort.777
+#              Current_total_energy
+#         3) tm_aes.dat -> from xes.x
+#
+#  OUTPUT 1) tmsft_aes.dat -> Shifted transition matrix 
+#******************************************************************************
+
+   #---------------------------------------------------------
+   # Create fort.13
+   #---------------------------------------------------------
+   #TODO remove this hard code
+   my $etot1 = `grep ! ../../Oxygen_1/$var{gw_outdir}_1/gw_1.out1 | gawk '{print \$5/2}'`;
+
+   open my $fh_13, '>', 'fort.13' or die " ERROR: Cannot Open fort.13: $!";
+   print $fh_13 " $var{val_bands} $etot1";
+   close ($fh_13);
+   #---------------------------------------------------------
+
+   #---------------------------------------------------------
+   # Create fort.777
+   #---------------------------------------------------------
+   #TODO remove hard-code
+   my $etot = `grep ! gw_1.out1 | gawk '{print \$5/2}'`;
+   open my $fh_777, '>', 'fort.777' or die " ERROR: Cannot Open fort.777: $!";
+   print $fh_777 " $etot";
+   close ($fh_777);
+   #---------------------------------------------------------
+
+   #Run Calculation
+   system ("$home/XES_src/tmsftaes.x");
+#******************************************************************************
+
+
+#******************************************************************************
+# tmsftbroadaes.x -> broaden the spcturm
+#
+#  INPUT 1) fort.12
+#           gauss_parameter   valence_bands
+#        2) tmsft_aes.dat
+#
+#  OUTPUT 1) tmsftbroad_aes.dat --> shifted, broaden, transition matrix
+#******************************************************************************
+   
+   #---------------------------------------------------------
+   # create fort.12
+   #---------------------------------------------------------
+   open my $fh_12, '>', 'fort.12' or die " ERROR: Cannot Open fort.12: $!";
+   #TODO remove hard codes
+   print $fh_12 "0.4 $var{val_bands}";
+   close ($fh_12);
+   #---------------------------------------------------------
+
+   #Run Calculation
+   system ("$home/XES_src/tmsftbroadaes.x");
+#******************************************************************************

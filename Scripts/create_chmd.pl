@@ -17,8 +17,8 @@ use File::Copy qw(copy);
 use Cwd 'cwd';
 
 #TODO configure script should adjust these
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
 
 #Cuurent Number of the Excited Atom
 my $num = shift @ARGV;
