@@ -6,7 +6,7 @@
 # 3)tmsftaes
 # 4)tmsftbroadaes
 #
-# IMPORTANT: This script is intended to be run from a PBS within the 
+# IMPORTANT: This script is intended to be run from a PBS WITHIN the 
 # the GW_OUTDIR that is currently being run 
 # ---> IF NOT this will not work
 #
@@ -17,22 +17,23 @@ use warnings;
 use strict;
 use Cwd 'cwd';
 
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/xml_tag.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/xml_tag.pm';
 
 #Main directory of the XES Program
-my $home = shift @_;
+my $home = shift @ARGV;
 
 #Root Output Directory -> Make CHMD outdir
 my $cur_dir = cwd();
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
+# IMPORTANT: This script is run INSIDE THE GW_OUTDIR
 #---------------------------------------------------------
-if (! -e './input-file.in'){
+if (! -e '../input-file.in'){
    die " ERROR Input File Not Specified : $!";
 }
-my %var = &read_variables(0, './input-file.in');
+my %var = &read_variables(0, '../input-file.in');
 #---------------------------------------------------------
 
 #---------------------------------------------------------
