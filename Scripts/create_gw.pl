@@ -25,8 +25,8 @@ use strict;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
@@ -53,8 +53,17 @@ if (! -e $chmd_out){
 open my $chmd_out_fh, '<', $chmd_out or die " ERROR: Cannot Open File $chmd_out: $!";
 #---------------------------------------------------------
 
-#---------------------------------------------------------
+
+
+#*********************************************************
 # Get the correct atomic postions and append to all template files 
+#*********************************************************
+
+#File with current GW Atomic Positions
+my $atomic_pos_file = 'atomic_pos.dat';
+
+#---------------------------------------------------------
+#First setup should be BEFORE the CHMD (i.e init_atomic_pos)
 #---------------------------------------------------------
 my $ncount = 1;
 
@@ -65,18 +74,29 @@ my $ncount = 1;
 #(See above for description of each)
 &copy_gw_templates($ncount, \%var);
 
-#First setup should be BEFORE the CHMD (i.e init_atomic_pos)
-my $atomic_pos_file = './init_atomic_pos.dat';
-if ( ! -e  $atomic_pos_file ){
-   die " ERROR: $atomic_pos_file Not Found in ".cwd().": $!";
+#Atomic postion files (Used later in the scripts)
+my $init_atomic_pos_file = './init_atomic_pos.dat';
+
+#Check to see if the initial position file exist
+if ( ! -e  $init_atomic_pos_file ){
+   die " ERROR: $init_atomic_pos_file Not Found in ".cwd().": $!";
 }
-foreach my $file ( 1 .. 5){
-   my $temp_file = $var{gw_outdir}.'_'.${ncount}.'/gw_'.${file}.'.in'.${ncount};  
-   system("cat $atomic_pos_file >> $temp_file");
+else {
+   #copy this file
+   system ("cp $init_atomic_pos_file $var{gw_outdir}'_'${ncount}'/'${atomic_pos_file}");
 }
 
+#Append all the input templates
+foreach my $file ( 1 .. 5){
+   my $temp_file = $var{gw_outdir}.'_'.${ncount}.'/gw_'.${file}.'.in'.${ncount};  
+   system("cat $init_atomic_pos_file >> $temp_file");
+}
+#---------------------------------------------------------
+
+#---------------------------------------------------------
 #Now for the rest of the positions inside the CHMD Output file
 #Loop through the output file and find the ATOMIC_POSITIONS
+#---------------------------------------------------------
 while (my $line = <$chmd_out_fh>){
   
    if ($line =~ /ATOMIC_POSITIONS/){
@@ -90,14 +110,17 @@ while (my $line = <$chmd_out_fh>){
       #Copy all the gw templates into gw_1.in*, ... , gw_5.in* in the $var{gw_outdir}_${ncount}
       &copy_gw_templates($ncount, \%var);
 
-      my @temp;
+      #Open atomic postion file
+      open my $fh, '>', $var{gw_outdir}.'_'.$ncount.'/'.$atomic_pos_file
+         or die " ERROR: Cannto Open $atomic_pos_file: $! ";
+
+      #Read beyond the ATOMIC_POSITIONS Tag
       $line = <$chmd_out_fh>;   
 
       foreach my $atom (1 .. $var{nat}){
          
-         #Store the atomic position
-         #shift to the true array index
-         $temp[$atom-1] = $line;
+         #print the atomic postion to file
+         print {$fh} "$line";
 
          #Unless weware at the very last line
          #Read the next line
@@ -107,18 +130,20 @@ while (my $line = <$chmd_out_fh>){
 
       }
 
+      close($fh);
+
       foreach my $file (1 .. 5){
+         #Append the template files
          my $temp_file = $var{gw_outdir}.'_'.$ncount.'/gw_'.$file.'.in'.$ncount;
-         open my $fh, '>>', $temp_file 
-            or die " ERROR: Cannot Open File ".$temp_file.": $!";
-         print {$fh} @temp;
-         close($fh);
+         system (" cat $var{gw_outdir}_$ncount/$atomic_pos_file >> $temp_file ");
       }
    }
 }
 
 close($chmd_out_fh);
 #---------------------------------------------------------
+
+#*********************************************************
 
 #######################################################################################
 #  Subroutines
