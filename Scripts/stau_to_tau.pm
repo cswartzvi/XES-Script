@@ -28,8 +28,12 @@ sub stau_to_tau{
    #Output Directory
    my $dir = shift @_;
    $dir =~ s/\/\z//;
+
+   #Output atoms file
    open my $output_fh, '>', $dir.'/atoms.dat' or die " ERROR: Cannot open File ($!) ";
 
+   #output omega file
+   open my $omega_fh, '>', $dir.'/omega.dat' or die " ERROR: Cannot open File ($!) ";
    #---------------------------------------------
    # Read in the ht (cell) File
    #---------------------------------------------
@@ -59,7 +63,8 @@ sub stau_to_tau{
 
    my $ncount=0;
    while ( $line !~ /<\/stau>/){
-      #Add a Line to remove the issue with negative signs in the first column
+      #TODO Remove this issue with the negative sign
+      #Add a space to remove the issue with negative signs in the first column
       $line = ' '.$line;
 
       #Now, with the space, split the temp
@@ -87,6 +92,16 @@ sub stau_to_tau{
    }
    #---------------------------------------------
 
+   #---------------------------------------------
+   # Find the omega value (determinant of ht matrix)
+   #---------------------------------------------
+   select $omega_fh;
+   #TODO Calculate the real determinant
+   printf "%20.10f", $ht[0][0]*$ht[1][1]*$ht[2][2]; 
+   #---------------------------------------------
+
    select STDIN;
+   close($output_fh);
+   close($omega_fh);
 }
 1;
