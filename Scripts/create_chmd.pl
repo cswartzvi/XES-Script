@@ -18,8 +18,8 @@ use File::Copy qw(copy);
 use Cwd 'cwd';
 
 #TODO configure script should adjust these
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
 
 #Cuurent Number of the Excited Atom
 my $num = shift @ARGV;
@@ -47,16 +47,16 @@ else {
 }
 
 #Copy the contents of the GS save directory to the CHMD save directory
-system("cp -r $var{gs_outdir}/* $var{chmd_outdir}") ;
+system("cp -r $var{gs_outdir}/$var{prefix}_50.save $var{chmd_outdir}") ;
 #----------------------------------------------
 
 #----------------------------------------------
 # Copy/append the CHMD template with atomic positions
 #----------------------------------------------
-&create_input($var{chmd_template}, $cur_dir.'/chmd.in', 
+&create_input($var{chmd_template}, $var{chmd_outdir}.'/chmd.in', 
    'prefix'         => $var{prefix},
    'pseudo_dir'     => $var{pseudo_dir},
-   'outdir'         => $var{chmd_outdir},
+   'outdir'         => './',
    'nat'            => $var{nat},
    'celldm(1)'      => $var{celldm},
    'nbnd'           => $var{val_bands});
@@ -67,7 +67,7 @@ my $atomic_pos_file = './init_atomic_pos.dat';
 if ( ! -e  $atomic_pos_file ){
    die " ERROR: $atomic_pos_file Not Found in $cur_dir";
 }
-system("cat $atomic_pos_file >> chmd.in");
+system("cat $atomic_pos_file >> $var{chmd_outdir}/chmd.in");
 #----------------------------------------------
 
 #----------------------------------------------

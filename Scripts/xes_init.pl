@@ -12,12 +12,12 @@ use warnings;
 use strict;
 use File::Copy qw(copy);
 
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_qsub.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/xml_data_parse.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/stau_to_tau.pm';
-my $exe_home = '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_qsub.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/xml_data_parse.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/stau_to_tau.pm';
+my $exe_home = '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts';
 
 #---------------------------------------------------------
 # Read in STDIN namelist 
@@ -104,20 +104,20 @@ foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
    #----------------------------------------------
    # Copy/append the GS template with atomic positions
    #----------------------------------------------
-   &create_input($var{gs_template}, $cur_dir.'/gs.in', 
+   &create_input($var{gs_template}, $cur_dir.'/'.$var{gs_outdir}.'/gs.in', 
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
-      'outdir'         => $var{gs_outdir},
+      'outdir'         => './',
       'nat'            => $var{nat},
       'celldm(1)'      => $var{celldm},
       'nbnd'           => $var{val_bands});
    
    # Append the Groundstate input File
-   system("cat $atomic_pos_file >> $cur_dir'/gs.in'");
+   system("cat $atomic_pos_file >> $cur_dir/$var{gs_outdir}'/gs.in'");
    #----------------------------------------------
 
    #----------------------------------------------
-   # Copy the input hash to the directory # for 
+   # Copy the input hash to the directory for 
    # use by the second major script: create_chmd.pl
    #----------------------------------------------
    open my $input_fh, '>', $cur_dir.'/input-file.in' or die ' ERROR: Cannot Open input-file.in: $!';

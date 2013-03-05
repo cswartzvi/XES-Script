@@ -68,8 +68,10 @@ cd $pathname
 #Run the Groundstate Calculation
 #***********************************************************
 echo "GS Calculation Started..."
+cd $var{gs_outdir}
 if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < gs.in > gs.out; then
    echo "...GS Calculation Complete"
+   cd ..
 else
    echo "GS Calculation Failed!!"
    ecit
@@ -81,8 +83,10 @@ fi
 #***********************************************************
 ${exe_home}/create_chmd.pl $num
 echo "CHMD Calculation Started..."
+cd $var{chmd_outdir}
 if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < chmd.in > chmd.out; then
    echo "...CHMD Calculation Complete"
+   cd ..
 else
    echo "CHMD Calculation Failed!!"
    exit
@@ -106,6 +110,11 @@ while [ 1 ]; do
    if [[ ! -e gw_1.in\${GWcount} ]]; then
       break
    fi
+
+   #-----------------------------------
+   #Change to the current directory
+   cd $var{gw_outdir}_\${GWcount}
+   #-----------------------------------
    
    #-----------------------------------
    #Submit the PWscf Calculation
@@ -120,7 +129,7 @@ while [ 1 ]; do
    
    #Copy the results from $var{prefix}.save to save $var{prefix}_50.save for the CP Ground-State Calculation
    #this will leave the $var{prefix} unchanged for the PW NSCF Calculatiosn later (NOT the GW Calculation)
-   clean_copy $var{gw_outdir}_\${GWcount}/$var{prefix}.save $var{gw_outdir}_\${GWcount}/$var{prefix}_50.save
+   clean_copy $var{prefix}.save $var{prefix}_50.save
    #-----------------------------------
 
    #-----------------------------------
@@ -136,11 +145,11 @@ while [ 1 ]; do
    fi
 
    #Copy the results into $var{prefix}_36.save (For the GW Calculation)
-   clean_copy $var{gw_outdir}_\${GWcount}/$var{prefix}_50.save $var{gw_outdir}_\${GWcount}/$var{prefix}_36.save
+   clean_copy $var{prefix}_50.save $var{prefix}_36.save
 
    #Copy the valence band wannier centers into fort.408
    #TODO Remove this hard-code for the valence bands
-   tail -$var{val_bands} $var{gw_outdir}_\${GWcount}/$var{prefix}.wfc > fort.408
+   tail -$var{val_bands} $var{prefix}.wfc > fort.408
    #-----------------------------------
 
    #-----------------------------------
@@ -156,7 +165,7 @@ while [ 1 ]; do
    fi
 
    #Copy $var{prefix}.save to $var{prefix}_50.save (NOT for the GW Caluclation)
-   clean_copy $var{gw_outdir}_\${GWcount}/$var{prefix}.save $var{gw_outdir}_\${GWcount}/$var{prefix}_50.save
+   clean_copy $var{prefix}.save $var{prefix}_50.save
    #-----------------------------------
 
    #-----------------------------------
@@ -172,7 +181,7 @@ while [ 1 ]; do
    fi
 
    #copy the total wannier centers to fort.407
-   tail -$var{tot_bands} $var{gw_outdir}_\${GWcount}/$var{prefix}.wfc > fort.407
+   tail -$var{tot_bands} $var{prefix}.wfc > fort.407
    #-----------------------------------
    
    #-----------------------------------
@@ -189,6 +198,12 @@ while [ 1 ]; do
       echo "GW Calculation Failed!!"
       exit
    fi
+   #-----------------------------------
+
+   #-----------------------------------
+   # Leave Current Directroy
+   #-----------------------------------
+   cd ..
    #-----------------------------------
 
    GWcount=\$((\$GWcount + 1))

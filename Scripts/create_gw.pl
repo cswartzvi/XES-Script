@@ -9,7 +9,7 @@
 # gw_cohsex.in    --> gw_5.in*
 #
 # This script will also create outdir for different GW calculations using 
-# $var{gw_outdir}.'_'.${GWcount}
+# $var{gw_outdir}.'_'.${ncount}
 #
 # !!!!!!!!!!!!!!!!!!!!!!!
 # IMPORTANT: This script is intended to be run from a PBS within the 
@@ -25,8 +25,8 @@ use strict;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES-Script/Scripts/create_input.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
+require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
@@ -38,16 +38,9 @@ my %var = &read_variables(0, './input-file.in');
 #---------------------------------------------------------
 
 #---------------------------------------------------------
-#GW Outdir temp value
-# --> GW outdir will be in th form $var{gw_outdir}.'_'.$ncount
-#---------------------------------------------------------
-my $gw_outdir_temp = $var{gw_outdir};
-#---------------------------------------------------------
-
-#---------------------------------------------------------
 # Check the previous output of the CHMD
 #---------------------------------------------------------
-my $chmd_out = cwd().'/chmd.out'; 
+my $chmd_out = cwd().'/'.$var{chmd_outdir}.'/chmd.out'; 
 if (! -e $chmd_out){
    die " ERROR CHMD Output Not Found: $!";
 }
@@ -66,10 +59,9 @@ open my $chmd_out_fh, '<', $chmd_out or die " ERROR: Cannot Open File $chmd_out:
 my $ncount = 1;
 
 #Name and create the current GW outdir
-$var{gw_outdir}=$gw_outdir_temp.'_'.$ncount;
-&create_dir($var{gw_outdir});
+&create_dir($var{gw_outdir}.'_'.$ncount);
 
-#Copy all the gw templates into gw_1.in*, gw_2.in*, ... , gw_5.in*
+#Copy all the gw templates into gw_1.in*, ... , gw_5.in* in the $var{gw_outdir}_${ncount}
 #(See above for description of each)
 &copy_gw_templates($ncount, \%var);
 
@@ -79,7 +71,8 @@ if ( ! -e  $atomic_pos_file ){
    die " ERROR: $atomic_pos_file Not Found in ".cwd().": $!";
 }
 foreach my $file ( 1 .. 5){
-   system("cat $atomic_pos_file >> gw_${file}.in${ncount}");
+   my $temp_file = $var{gw_outdir}.'_'.${ncount}.'/gw_'.${file}.in${ncount};  
+   system("cat $atomic_pos_file >> $temp_file");
 }
 
 #Now for the rest of the positions inside the CHMD Output file
@@ -92,10 +85,9 @@ while (my $line = <$chmd_out_fh>){
       $ncount++;
 
       #Name and create new directory
-      $var{gw_outdir}=$gw_outdir_temp.'_'.$ncount;
-      &create_dir($var{gw_outdir});
+      &create_dir($var{gw_outdir}.'_'.$ncount);
 
-      #Copy all templates to main directory
+      #Copy all the gw templates into gw_1.in*, ... , gw_5.in* in the $var{gw_outdir}_${ncount}
       &copy_gw_templates($ncount, \%var);
 
       my @temp;
@@ -116,8 +108,9 @@ while (my $line = <$chmd_out_fh>){
       }
 
       foreach my $file (1 .. 5){
-         open my $fh, '>>', 'gw_'.$file.'.in'.$ncount 
-            or die " ERROR: Cannot Open File ".'gw_'.$file.'.in'.$ncount.": $!";
+         my $temp_file = $var{gw_outdir}.'_'.$ncount.'/gw_'.$file.'.in'.$ncount;
+         open my $fh, '>>', $temp_file 
+            or die " ERROR: Cannot Open File ".$temp_file.": $!";
          print {$fh} @temp;
          close($fh);
       }
@@ -141,46 +134,46 @@ sub copy_gw_templates{
    my %var = %$var_ref; 
 
    #Create the PWscf Calculation (val_bands):
-   &create_input($var{gw_pw_template}, 'gw_1.in'.$num, 
+   &create_input($var{gw_pw_template}, $var{gw_outdir}.'_'.$num.'/gw_1.in'.$num, 
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
-      'outdir'         => $var{gw_outdir},
+      'outdir'         => './',
       'nat'            => $var{nat},
       'celldm(1)'      => $var{celldm},
       'nbnd'           => $var{val_bands});
 
    #Create the CPscf Calculation (val_bands):
-   &create_input($var{gw_cp_template}, 'gw_2.in'.$num, 
+   &create_input($var{gw_cp_template}, $var{gw_outdir}.'_'.$num.'/gw_2.in'.$num, 
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
-      'outdir'         => $var{gw_outdir},
+      'outdir'         => './',
       'nat'            => $var{nat},
       'celldm(1)'      => $var{celldm},
       'nbnd'           => $var{val_bands});
 
    #Create the PWnscf Calculation (tot_bands):
-   &create_input($var{gw_pwnscf_template}, 'gw_3.in'.$num, 
+   &create_input($var{gw_pwnscf_template}, $var{gw_outdir}.'_'.$num.'/gw_3.in'.$num, 
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
-      'outdir'         => $var{gw_outdir},
+      'outdir'         => './',
       'nat'            => $var{nat},
       'celldm(1)'      => $var{celldm},
       'nbnd'           => $var{tot_bands});
 
    #Create the CPnscf Calculation (tot_bands):
-   &create_input($var{gw_cpnscf_template}, 'gw_4.in'.$num, 
+   &create_input($var{gw_cpnscf_template}, $var{gw_outdir}.'_'.$num.'/gw_4.in'.$num, 
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
-      'outdir'         => $var{gw_outdir},
+      'outdir'         => './',
       'nat'            => $var{nat},
       'celldm(1)'      => $var{celldm},
       'nbnd'           => $var{tot_bands});
 
    #Create the GW-lf Calculation (tot_bands AND val_bands):
-   &create_input($var{gw_template}, 'gw_5.in'.$num, 
+   &create_input($var{gw_template}, $var{gw_outdir}.'_'.$num.'/gw_5.in'.$num, 
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
-      'outdir'         => $var{gw_outdir},
+      'outdir'         => './',
       'nat'            => $var{nat},
       'celldm(1)'      => $var{celldm},
       'nbnd'           => $var{tot_bands},
