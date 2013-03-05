@@ -12,12 +12,12 @@ use warnings;
 use strict;
 use File::Copy qw(copy);
 
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_qsub.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/xml_data_parse.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/stau_to_tau.pm';
-my $exe_home = '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_input.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_qsub.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/xml_data_parse.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/stau_to_tau.pm';
+my $exe_home = '/global/homes/c/cswartz/Scripts/XES_Script/Scripts';
 
 #---------------------------------------------------------
 # Read in STDIN namelist 

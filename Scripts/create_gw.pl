@@ -25,8 +25,8 @@ use strict;
 use File::Copy qw(copy);
 use Cwd 'cwd';
 
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/read_variables.pm';
-require '/home/charles/Desktop/Research/XES_Project/XES_Program/Scripts/create_input.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
+require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_input.pm';
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
@@ -71,7 +71,7 @@ if ( ! -e  $atomic_pos_file ){
    die " ERROR: $atomic_pos_file Not Found in ".cwd().": $!";
 }
 foreach my $file ( 1 .. 5){
-   my $temp_file = $var{gw_outdir}.'_'.${ncount}.'/gw_'.${file}.in${ncount};  
+   my $temp_file = $var{gw_outdir}.'_'.${ncount}.'/gw_'.${file}.'.in'.${ncount};  
    system("cat $atomic_pos_file >> $temp_file");
 }
 

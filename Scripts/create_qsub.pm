@@ -106,16 +106,16 @@ while [ 1 ]; do
    echo ""
    echo "GW Calculation: \$GWCount"
 
-   #Check to see if this file is actually there
-   if [[ ! -e gw_1.in\${GWcount} ]]; then
-      break
-   fi
-
    #-----------------------------------
    #Change to the current directory
    cd $var{gw_outdir}_\${GWcount}
    #-----------------------------------
    
+   #Check to see if this file is actually there
+   if [[ ! -e gw_1.in\${GWcount} ]]; then
+      break
+   fi
+
    #-----------------------------------
    #Submit the PWscf Calculation
    #-----------------------------------
