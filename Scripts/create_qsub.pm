@@ -59,6 +59,7 @@ sub create_qsub{
 #------------------------------------------------------
 #Create the Here-Document
 #------------------------------------------------------
+#TODO Fix output of errors to error_log
 print <<EOF;
 
 #This portion of the command script was generated automatically

@@ -106,7 +106,7 @@ my %var = &read_variables(0, '../input-file.in');
    close($atoms_fh);
    
    #omega value (Volume of the cell)
-   open my $omega_fh, '<', '../omega.dat' or die " ERROR: Cannot Open omega.dat: $!";
+   open my $omega_fh, '<', $var{md_dir}.'/omega.dat' or die " ERROR: Cannot Open omega.dat: $!";
    my $omega = <$omega_fh>;
    close($omega_fh);
    
