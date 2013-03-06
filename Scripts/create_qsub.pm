@@ -59,7 +59,6 @@ sub create_qsub{
 #------------------------------------------------------
 #Create the Here-Document
 #------------------------------------------------------
-#TODO Fix output of errors to error_log
 print <<EOF;
 
 #This portion of the command script was generated automatically
@@ -114,18 +113,18 @@ while [ 1 ]; do
 
    #Stop the GW Caclualations early
    if [[ \$GWcount -eq '$var{gw_stop}' ]]; then
-      echo "GW Calculations stoped!!"
+      echo "GW Calculations stopped!!"
       exit
    fi
       
-   echo ""
-   echo "GW Calculation: \$GWcount" | tee $error_log
-
    #-----------------------------------
    #Change to the current directory
    cd $var{gw_outdir}_\${GWcount}
    #-----------------------------------
    
+   echo ""
+   echo "GW Calculation: \$GWcount" | tee $error_log
+
    #Check to see if this file is actually there
    if [[ ! -e gw_1.in\${GWcount} ]]; then
       break
