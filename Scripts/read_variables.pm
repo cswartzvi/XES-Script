@@ -48,6 +48,7 @@ sub read_variables{
       gs_outdir            => 'Data-Files_GS',     #outdir in QE files (GS)
       chmd_template        => '',                  #Excited Oxygen CHMD Template
       chmd_outdir          => 'Data-Files_CHMD',   #outdir in QE files (CHMD)
+      gw_stop              => 0,                   #Stop the GE calculations after this value in PBS script
       gw_pw_template       => '',                  #GW template: PW Calculation (1/5)
       gw_cp_template       => '',                  #GW template: CP Calculation (2/5) 
       gw_pwnscf_template   => '',                  #GW template: PWnscf Calculation (3/5)
