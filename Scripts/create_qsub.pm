@@ -53,6 +53,8 @@ sub create_qsub{
    #Start the copying process
    print  @template;
 
+   #Output FIle Name
+   my $output_file = $pathname.'/output.log';
    #Error File Name
    my $error_log = 'error.log';
 
@@ -69,6 +71,9 @@ function clean_copy {
   if [ ! -d \$2 ]; then mkdir \$2; fi
   cp -r \$1/* \$2
 }
+
+#Redirect all STDOUT to file
+exec > $output_file
 
 cd $pathname
 
