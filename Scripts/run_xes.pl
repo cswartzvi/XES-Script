@@ -167,7 +167,7 @@ my %var = &read_variables(0, '../input-file.in');
    # Create fort.777
    #---------------------------------------------------------
    #TODO remove hard-code
-   my $etot = `grep ! gw_1.out1 | gawk '{print \$5/2}'`;
+   my $etot = `grep ! gw_1.out* | gawk '{print \$5/2}'`;
    open my $fh_777, '>', 'fort.777' or die " ERROR: Cannot Open fort.777: $!";
    print $fh_777 " $etot";
    close ($fh_777);
