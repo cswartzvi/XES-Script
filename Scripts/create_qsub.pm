@@ -121,6 +121,11 @@ while [ 1 ]; do
       echo "GW Calculations stopped!!"
       exit
    fi
+
+   if [[ \$GWcount -eq '1' ]]; then
+      echo "First GW Calculation skipped!!"
+      continue
+   fi
       
    #-----------------------------------
    #Change to the current directory
