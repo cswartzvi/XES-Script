@@ -10,7 +10,8 @@
 # the GW_OUTDIR that is currently being run 
 # ---> IF NOT this will not work
 #
-# INPUT: 1) the Main directroy of the XES Program
+# INPUT: 1) Current GW Number (For the shift of the spectrum)
+#        2) The Main directroy of the XES Program
 #---------------------------------------------------------------------------
 #TODO Check that the programs exist and have these names
 use warnings;
@@ -19,6 +20,9 @@ use Cwd 'cwd';
 
 require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
 require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/xml_tag.pm';
+
+#Current GW number 
+my $GWcount = shift @ARGV;
 
 #Main directory of the XES Program
 my $home = shift @ARGV;
@@ -156,7 +160,7 @@ my %var = &read_variables(0, '../input-file.in');
    # Create fort.13
    #---------------------------------------------------------
    #TODO remove this hard code
-   my $etot1 = `grep ! ../../Oxygen_1/$var{gw_outdir}_1/gw_1.out1 | gawk '{print \$5/2}'`;
+   my $etot1 = `grep ! ../../Oxygen_1/$var{gw_outdir}_$GWcount/gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`;
 
    open my $fh_13, '>', 'fort.13' or die " ERROR: Cannot Open fort.13: $!";
    print $fh_13 " $var{val_bands} $etot1";
@@ -167,7 +171,7 @@ my %var = &read_variables(0, '../input-file.in');
    # Create fort.777
    #---------------------------------------------------------
    #TODO remove hard-code
-   my $etot = `grep ! gw_1.out* | gawk '{print \$5/2}'`;
+   my $etot = `grep ! gw_1.out* | gawk '{printf "%f", \$5/2}'`;
    open my $fh_777, '>', 'fort.777' or die " ERROR: Cannot Open fort.777: $!";
    print $fh_777 " $etot";
    close ($fh_777);

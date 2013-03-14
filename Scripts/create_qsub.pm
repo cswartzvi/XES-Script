@@ -73,7 +73,7 @@ function clean_copy {
 }
 
 #Redirect all STDOUT to file
-exec > $output_file
+exec 1> $output_file
 
 cd $pathname
 
@@ -222,7 +222,7 @@ while [ 1 ]; do
    # Run the XES
    #-----------------------------------
    echo "XES Calculations Started ..." | tee -a $error_log
-   if ${exe_home}/run_xes.pl ${home} 2>> $error_log; then
+   if ${exe_home}/run_xes.pl \$GWcount ${home} 2>> $error_log; then
       echo "XES Calculations Complete"
    else
       echo "XES Calculations Failed (Check $error_log)!!"
@@ -243,5 +243,7 @@ EOF
 #------------------------------------------------------
 select STDIN;
 close($submit_fh);
+
+return $submit_script;
 }
 1;

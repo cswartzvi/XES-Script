@@ -24,7 +24,8 @@
  
       do j = 1, neig
          read(30,*)   e, xas
-         write(60,*)  e + detmp, xas
+         !write(60,*)  e + detmp, xas
+         write(60,*)  e - detmp, xas
       end do
 
       close(30)
