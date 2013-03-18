@@ -113,8 +113,10 @@ fi
 ${exe_home}/create_gw.pl
 
 
-GWcount=1
+GWcount=0
 while [ 1 ]; do
+
+   GWcount=\$((\$GWcount + 1))
 
    #Stop the GW Caclualations early
    if [[ \$GWcount -eq '$var{gw_stop}' ]]; then
@@ -240,7 +242,6 @@ while [ 1 ]; do
    cd ..
    #-----------------------------------
 
-   GWcount=\$((\$GWcount + 1))
 done
 #***********************************************************
 
