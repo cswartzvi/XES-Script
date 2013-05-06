@@ -122,6 +122,7 @@ my %var = &read_variables(0, '../input-file.in');
    #TODO Check for kpoints
    print "0.0 0.0 0.0\n";
    print $exc_atom;
+   select STDOUT;
    close ($fh_10);
    #---------------------------------------------------------
    
@@ -159,7 +160,8 @@ my %var = &read_variables(0, '../input-file.in');
    #---------------------------------------------------------
    # Create fort.13
    #---------------------------------------------------------
-   #TODO remove this hard code
+   #TODO remove this hard code   
+   print `grep ! ../../Oxygen_1/$var{gw_outdir}_$GWcount/gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`, "\n";
    my $etot1 = `grep ! ../../Oxygen_1/$var{gw_outdir}_$GWcount/gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`;
 
    open my $fh_13, '>', 'fort.13' or die " ERROR: Cannot Open fort.13: $!";

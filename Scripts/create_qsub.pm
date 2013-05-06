@@ -124,11 +124,6 @@ while [ 1 ]; do
       exit
    fi
 
-   if [[ \$GWcount -eq '1' ]]; then
-      echo "First GW Calculation skipped!!"
-      continue
-   fi
-      
    #-----------------------------------
    #Change to the current directory
    cd $var{gw_outdir}_\${GWcount}
