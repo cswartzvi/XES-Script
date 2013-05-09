@@ -11,7 +11,7 @@
 use warnings;
 use strict;
 use File::Copy qw(copy);
-use FindBin qw($Bin)
+use FindBin qw($Bin);
 
 #Required Modules
 require "$Bin/read_variables.pm";
@@ -19,9 +19,6 @@ require "$Bin/create_input.pm";
 require "$Bin/create_qsub.pm";
 require "$Bin/xml_data_parse.pm";
 require "$Bin/stau_to_tau.pm";
-
-#Current Home of the Script
-my $exe_home = "$Bin/../Scripts";
 
 #TODO Remove all hard coded gs, chmd, gw_* strings for the inputs 
 
@@ -128,14 +125,21 @@ foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
    #----------------------------------------------
    open my $input_fh, '>', $cur_dir.'/input-file.in' or die ' ERROR: Cannot Open input-file.in: $!';
    while (my ($key, $value) = each %var ){
-      print {$input_fh} "$key  =  $value\n";
+
+      if ($key eq 'xes_steps') {
+         print {$input_fh} "$key = @$value \n";
+      }
+      else{
+         print {$input_fh} "$key = $value \n"; 
+      }
+
    }
    #----------------------------------------------
 
    #----------------------------------------------
    # Create PBS Submit Script 
    #----------------------------------------------
-   &create_qsub($ncount, \%var,$cur_dir,$home, $exe_home);
+   &create_qsub($ncount, \%var,$cur_dir);
    #----------------------------------------------
 
 }

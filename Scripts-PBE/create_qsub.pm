@@ -6,8 +6,6 @@
 # INPUT: 1) Number of the currently excited atom 
 #        2) Hash ref for var
 #        3) Current Directory for the excited atom
-#        4) $home the pathname of the of the main Program directory
-#        5) $exe_home the pathname of the of the scripts directory
 #
 # OUTPUT: 1)
 #----------------------------------------------------------------------------
@@ -16,9 +14,14 @@ use warnings;
 use strict;
 use File::Copy qw(copy);
 use Cwd 'cwd';
+use FindBin qw($Bin);
+
 
 sub create_qsub{
 
+   #---------------------------------------------
+   # Inputs
+   #---------------------------------------------
    #number of the currently excited atom
    my $num = shift @_;
 
@@ -29,13 +32,14 @@ sub create_qsub{
    #Absolute Pathname where the PBS File will be ran
    my $current_dir = shift @_;
    my $pathname = cwd().'/'.$current_dir;
+   #---------------------------------------------
 
-   #Pathname of the XES_Program directory
-   my $home = shift @_; 
+   #Direcotroy of the XES Programs
+   my $xes_dir = "$Bin/../XES_src";
 
    #Pathname of the scripts directory (because this current script will end before the 
    #the next is executed
-   my $exe_home = shift @_; 
+   my $scripts_dir = "$Bin";
 
    #open and read in the submit_template
    open my $submit_template_fh, '<', $var{submit_template} 
@@ -66,6 +70,15 @@ print <<EOF;
 #This portion of the command script was generated automatically
 #Edit it and you will get what you deserve
 
+##the atoms-file header
+cat > atoms.dat <<END
+   $var{nat} 2 0
+   $var{celldm}  0.00000000    0.00000000
+   0.00000000    $var{celldm}  0.00000000
+   0.00000000    0.00000000    $var{celldm} 
+
+END
+
 function clean_copy {
   if [ -d \$2 ]; then /bin/rm -r \$2; fi
   if [ ! -d \$2 ]; then mkdir \$2; fi
@@ -94,7 +107,7 @@ fi
 #***********************************************************
 # CHMD Calculations
 #***********************************************************
-${exe_home}/create_chmd.pl $num
+${scripts_dir}/create_chmd.pl $num
 cd $var{chmd_outdir}
 echo "CHMD Calculation Started..." | tee $error_log
 if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < chmd.in > chmd.out 2>> $error_log; then
@@ -107,69 +120,34 @@ fi
 #***********************************************************
 
 #***********************************************************
-# GW calculations
+# PBE calculations
 #***********************************************************
-#Set up and run the GW Calculations
-${exe_home}/create_gw.pl
+#Set up and run the PBE Calculations
+${scripts_dir}/create_pbe.pl
 
 
-GWcount=0
-while [ 1 ]; do
-
-   GWcount=\$((\$GWcount + 1))
-
-   #Stop the GW Caclualations early
-   if [[ \$GWcount -eq '$var{gw_stop}' ]]; then
-      echo "GW Calculations stopped!!"
-      exit
-   fi
+for PBEcount in @{$var{xes_steps}}
+do 
 
    #-----------------------------------
    #Change to the current directory
-   cd $var{gw_outdir}_\${GWcount}
+   cd $var{pbe_outdir}_\${PBEcount}
    #-----------------------------------
    
    echo ""
-   echo "GW Calculation: \$GWcount" | tee $error_log
+   echo "PBS Calculation: \$PBEcount" | tee $error_log
 
-   #Check to see if this file is actually there
-   if [[ ! -e gw_1.in\${GWcount} ]]; then
-      break
-   fi
 
    #-----------------------------------
    #Submit the PWscf Calculation
    #-----------------------------------
    echo "PWscf Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < gw_1.in\${GWcount} > gw_1.out\${GWcount} 2>> $error_log; then
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < pbe_\${PBEcount}.in1 > pbe_\${PBEcount}.out1 2>> $error_log; then
      echo "...PWscf Calculation Complete"
    else
      echo"PWscf Calculation Failed (Check $error_log)!!!"
      exit
    fi
-   
-   #Copy the results from $var{prefix}.save to save $var{prefix}_50.save for the CP Ground-State Calculation
-   #this will leave the $var{prefix} unchanged for the PW NSCF Calculatiosn later (NOT the GW Calculation)
-   clean_copy $var{prefix}.save $var{prefix}_50.save
-   #-----------------------------------
-
-   #-----------------------------------
-   #Submit the CP Ground State
-   #Restart: $var{prefix}_50.save (Copied from PW calculation)
-   #-----------------------------------
-      echo "CP Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_2.in\${GWcount} > gw_2.out\${GWcount} 2>> $error_log; then
-      echo "...CP Calculation Complete"
-   else
-      echo "CP Calculation Failed (Check $error_log)!!"
-      exit
-   fi
-
-   #Copy the results into $var{prefix}_36.save (For the GW Calculation)
-   clean_copy $var{prefix}_50.save $var{prefix}_36.save
-
-   #Copy the valence band wannier centers into fort.408
-   tail -$var{val_bands} $var{prefix}.wfc > fort.408
    #-----------------------------------
 
    #-----------------------------------
@@ -177,14 +155,14 @@ while [ 1 ]; do
    #Restart: $var{prefix}.save (From PWscf Calculation: no need to do anything)
    #-----------------------------------
       echo "PWnscf Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < gw_3.in\${GWcount} > gw_3.out\${GWcount} 2>> $error_log; then
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < pbe_\${PBEcount}.in2 > pbe_\${PBEcount}.out2 2>> $error_log; then
       echo "...PWnscf Calculation Complete"
    else
       echo "PWnscf Calculation Failed (Check $error_log)!!"
       exit
    fi
 
-   #Copy $var{prefix}.save to $var{prefix}_50.save (NOT for the GW Caluclation)
+   #Copy $var{prefix}.save to $var{prefix}_50.save 
    clean_copy $var{prefix}.save $var{prefix}_50.save
    #-----------------------------------
 
@@ -193,38 +171,56 @@ while [ 1 ]; do
    #Restart: $var{prefix}_50.save from the PWnscf Calulation
    #-----------------------------------
       echo "CPnscf Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < gw_4.in\${GWcount} > gw_4.out\${GWcount} 2>> $error_log; then
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < pbe_\${PBEcount}.in3 > pbe_\${PBEcount}.out3 2>> $error_log; then
       echo "...CPnscf Calculation Complete"
    else
       echo "CPnscf Calculation Failed (Check $error_log)!!"
       exit
    fi
 
-   #copy the total wannier centers to fort.407
-   tail -$var{tot_bands} $var{prefix}.wfc > fort.407
    #-----------------------------------
    
    #-----------------------------------
-   #GW Calculaiton
-   #Restart: $var{prefix}_50.save   --> Total Charge Density
-   #         $var{prefix}_36.save   --> Valence Charge Density
-   #         fort.407               --> Total wannier centers (valence and conduction)
-   #         fort.408               --> Valence Wannier Centers
+   #Submit CPnscf Print-Out Calculation
+   #Restart: $var{prefix}_50.save from the first CPnscf Calulation
    #-----------------------------------
-   echo "GW Calculation Started ..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs_gw} $var{gw_qe} < gw_5.in\${GWcount} > gw_5.out\${GWcount} 2>> $error_log; then
-      echo "GW Calculation Complete"
+      echo "CPnscf Print-Out Calculation Started..." | tee -a $error_log
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < pbe_\${PBEcount}.in4 > pbe_\${PBEcount}.out4 2>> $error_log; then
+      echo "...CPnscf Print-Out Calculation Complete"
    else
-      echo "GW Calculation Failed (Check $error_log)!!"
+      echo "CPnscf Print-Out Calculation Failed (Check $error_log)!!"
       exit
    fi
    #-----------------------------------
 
    #-----------------------------------
+   #Gen projections
+   #-----------------------------------
+
+   tail -$var{nat} pbe_\${PBEcount}.in1 >> atoms.dat
+   sed -i -e 's/OO/16/g' -e 's/O/8/g' -e 's/H/1/g' atoms.dat
+
+      echo "General Projections Started..." | tee -a $error_log
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{gen_proj} < xsf.in > xsf.out 2>> $error_log; then
+      echo "...General projections Complete"
+   else
+      echo "General Projections Failed (Check $error_log)!!"
+      exit
+   fi
+
+   \$wave_dir=wavefunctions
+   if [ ! -d \$wave_dir ];then
+      mkdir \$wave_dir
+   fi
+   mv KS_* WAN_* \$wave_dir
+   #-----------------------------------
+
+
+   #-----------------------------------
    # Run the XES
    #-----------------------------------
    echo "XES Calculations Started ..." | tee -a $error_log
-   if ${exe_home}/run_xes.pl \$GWcount ${home} 2>> $error_log; then
+   if ${scripts_dir}/run_xes.pl \$PBEcount 2>> $error_log; then
       echo "XES Calculations Complete"
    else
       echo "XES Calculations Failed (Check $error_log)!!"

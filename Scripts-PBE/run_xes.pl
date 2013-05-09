@@ -10,22 +10,23 @@
 # the GW_OUTDIR that is currently being run 
 # ---> IF NOT this will not work
 #
-# INPUT: 1) Current GW Number (For the shift of the spectrum)
+# INPUT: 1) Current PBE Number (For the shift of the spectrum)
 #        2) The Main directroy of the XES Program
 #---------------------------------------------------------------------------
 #TODO Check that the programs exist and have these names
 use warnings;
 use strict;
 use Cwd 'cwd';
+use FindBin qw($Bin);
 
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/xml_tag.pm';
+require "$Bin/read_variables.pm";
+require "$Bin/Scripts/xml_tag.pm";
 
-#Current GW number 
-my $GWcount = shift @ARGV;
+#Current PBE number 
+my $PBEcount = shift @ARGV;
 
 #Main directory of the XES Program
-my $home = shift @ARGV;
+my $home = "$Bin/../"; 
 
 #Root Output Directory -> Make CHMD outdir
 my $cur_dir = cwd();
@@ -161,8 +162,7 @@ my %var = &read_variables(0, '../input-file.in');
    # Create fort.13
    #---------------------------------------------------------
    #TODO remove this hard code   
-   print `grep ! ../../Oxygen_1/$var{gw_outdir}_$GWcount/gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`, "\n";
-   my $etot1 = `grep ! ../../Oxygen_1/$var{gw_outdir}_$GWcount/gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`;
+   my $etot1 = `grep ! ../../Oxygen_1/$var{pbe_outdir}_$PBEcount/gw_${PBEcount}.in1 | gawk '{printf "%f", \$5/2}'`;
 
    open my $fh_13, '>', 'fort.13' or die " ERROR: Cannot Open fort.13: $!";
    print $fh_13 " $var{val_bands} $etot1";

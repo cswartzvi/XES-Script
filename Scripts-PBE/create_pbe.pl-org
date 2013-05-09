@@ -1,15 +1,15 @@
 #! /usr/bin/perl
 #----------------------------------------------------------------------------
 # Script to read the previous CHMD output file and find printed 
-# ATOMIC_POSITIONS tags, then copy/append these to the follwoing GW templates:
-# pw_scf.in       --> gw_1.in* 
-# cp_scp.in       --> gw_2.in*
-# pw_nscf.in      --> gw_3.in* 
-# cp_nscf.in      --> gw_4.in*
-# gw_cohsex.in    --> gw_5.in*
+# ATOMIC_POSITIONS tags, then copy/append these to the follwoing PBE templates:
+# pw_scf.in             --> pbe_*.in1 
+# pw_nscf.in            --> pbe_*.in2 
+# cp_nscf.in            --> pbe_*.in3
+# cp-print_nscf.in      --> pbe_*.in4
+# gen-progjections      --> xsf.in
 #
-# This script will also create outdir for different GW calculations using 
-# $var{gw_outdir}.'_'.${ncount}
+# This script will also create outdir for different PBE calculations using 
+# $var{pbe_outdir}.'_'.${ncount}
 #
 # !!!!!!!!!!!!!!!!!!!!!!!
 # IMPORTANT: This script is intended to be run from a PBS within the 
@@ -17,16 +17,17 @@
 # ---> IF NOT this will not work
 # !!!!!!!!!!!!!!!!!!!!!!!
 #
-# OUTPUT: All the GW input files as above
+# OUTPUT: All the PBEinput files as above
 #---------------------------------------------------------------------------
 
 use warnings;
 use strict;
 use File::Copy qw(copy);
 use Cwd 'cwd';
+use FindBin qw($Bin);
 
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_input.pm';
+require "$Bin/read_variables.pm";
+require "$Bin/create_input.pm";
 
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
@@ -59,7 +60,7 @@ open my $chmd_out_fh, '<', $chmd_out or die " ERROR: Cannot Open File $chmd_out:
 # Get the correct atomic postions and append to all template files 
 #*********************************************************
 
-#File with current GW Atomic Positions
+#File with current pbe Atomic Positions
 my $atomic_pos_file = 'atomic_pos.dat';
 
 #---------------------------------------------------------
@@ -67,12 +68,12 @@ my $atomic_pos_file = 'atomic_pos.dat';
 #---------------------------------------------------------
 my $ncount = 1;
 
-#Name and create the current GW outdir
-&create_dir($var{gw_outdir}.'_'.$ncount);
+#Name and create the current pbe outdir
+&create_dir($var{pbe_outdir}.'_'.$ncount);
 
-#Copy all the gw templates into gw_1.in*, ... , gw_5.in* in the $var{gw_outdir}_${ncount}
+#Copy all the pbe templates into pbe_*.in1, ... , pbe_*.in5 in the $var{pbe_outdir}_${ncount}
 #(See above for description of each)
-&copy_gw_templates($ncount, \%var);
+&copy_pbe_templates($ncount, \%var);
 
 #Atomic postion files (Used later in the scripts)
 my $init_atomic_pos_file = './init_atomic_pos.dat';
@@ -83,12 +84,12 @@ if ( ! -e  $init_atomic_pos_file ){
 }
 else {
    #copy this file
-   system ("cp $init_atomic_pos_file $var{gw_outdir}'_'${ncount}'/'${atomic_pos_file}");
+   system ("cp $init_atomic_pos_file $var{pbe_outdir}'_'${ncount}'/'${atomic_pos_file}");
 }
 
 #Append all the input templates
-foreach my $file ( 1 .. 5){
-   my $temp_file = $var{gw_outdir}.'_'.${ncount}.'/gw_'.${file}.'.in'.${ncount};  
+foreach my $file ( 1 .. 4){
+   my $temp_file = $var{pbe_outdir}.'_'.${ncount}.'/pbe_'.${ncount}.'.in'.${file};  
    system("cat $init_atomic_pos_file >> $temp_file");
 }
 #---------------------------------------------------------
@@ -104,14 +105,15 @@ while (my $line = <$chmd_out_fh>){
       #Update counter and copy to the new files and create new directory
       $ncount++;
 
+      #next unless (
       #Name and create new directory
-      &create_dir($var{gw_outdir}.'_'.$ncount);
+      &create_dir($var{pbe_outdir}.'_'.$ncount);
 
-      #Copy all the gw templates into gw_1.in*, ... , gw_5.in* in the $var{gw_outdir}_${ncount}
-      &copy_gw_templates($ncount, \%var);
+      #Copy all the pbe templates into pbe_*.in1, ... , pbe_*.in4 in the $var{pbe_outdir}_${ncount}
+      &copy_pbe_templates($ncount, \%var);
 
       #Open atomic postion file
-      open my $fh, '>', $var{gw_outdir}.'_'.$ncount.'/'.$atomic_pos_file
+      open my $fh, '>', $var{pbe_outdir}.'_'.$ncount.'/'.$atomic_pos_file
          or die " ERROR: Cannto Open $atomic_pos_file: $! ";
 
       #Read beyond the ATOMIC_POSITIONS Tag
@@ -132,10 +134,10 @@ while (my $line = <$chmd_out_fh>){
 
       close($fh);
 
-      foreach my $file (1 .. 5){
+      foreach my $file (1 .. 4){
          #Append the template files
-         my $temp_file = $var{gw_outdir}.'_'.$ncount.'/gw_'.$file.'.in'.$ncount;
-         system (" cat $var{gw_outdir}_$ncount/$atomic_pos_file >> $temp_file ");
+         my $temp_file = $var{pbe_outdir}.'_'.$ncount.'/pbe_'.$ncount.'.in'.$file;
+         system (" cat $var{pbe_outdir}_$ncount/$atomic_pos_file >> $temp_file ");
       }
    }
 }
@@ -149,9 +151,9 @@ close($chmd_out_fh);
 #  Subroutines
 #######################################################################################
 
-sub copy_gw_templates{
+sub copy_pbe_templates{
 
-   #GW calculation num
+   #W Gcalculation num
    my $num = shift @_;
 
    #Hash reference 
@@ -159,16 +161,7 @@ sub copy_gw_templates{
    my %var = %$var_ref; 
 
    #Create the PWscf Calculation (val_bands):
-   &create_input($var{gw_pw_template}, $var{gw_outdir}.'_'.$num.'/gw_1.in'.$num, 
-      'prefix'         => $var{prefix},
-      'pseudo_dir'     => $var{pseudo_dir},
-      'outdir'         => './',
-      'nat'            => $var{nat},
-      'celldm(1)'      => $var{celldm},
-      'nbnd'           => $var{val_bands});
-
-   #Create the CPscf Calculation (val_bands):
-   &create_input($var{gw_cp_template}, $var{gw_outdir}.'_'.$num.'/gw_2.in'.$num, 
+   &create_input($var{pw_template}, $var{pbe_outdir}.'_'.$num.'/pbe_'.$num.'.in1', 
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
       'outdir'         => './',
@@ -177,7 +170,7 @@ sub copy_gw_templates{
       'nbnd'           => $var{val_bands});
 
    #Create the PWnscf Calculation (tot_bands):
-   &create_input($var{gw_pwnscf_template}, $var{gw_outdir}.'_'.$num.'/gw_3.in'.$num, 
+   &create_input($var{pwnscf_template}, $var{pbe_outdir}.'_'.$num.'/pbe_'.$num.'.in2', 
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
       'outdir'         => './',
@@ -186,7 +179,7 @@ sub copy_gw_templates{
       'nbnd'           => $var{tot_bands});
 
    #Create the CPnscf Calculation (tot_bands):
-   &create_input($var{gw_cpnscf_template}, $var{gw_outdir}.'_'.$num.'/gw_4.in'.$num, 
+   &create_input($var{cpnscf_template}, $var{pbe_outdir}.'_'.$num.'/pbe_'.$num.'.in3',
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
       'outdir'         => './',
@@ -194,31 +187,30 @@ sub copy_gw_templates{
       'celldm(1)'      => $var{celldm},
       'nbnd'           => $var{tot_bands});
 
-   #Create the GW-lf Calculation (tot_bands AND val_bands):
-   &create_input($var{gw_template}, $var{gw_outdir}.'_'.$num.'/gw_5.in'.$num, 
+   #Create the CPnscf Print out Calculation (tot_bands):
+   &create_input($var{cpnscf_print_template}, $var{pbe_outdir}.'_'.$num.'/pbe_'.$num.'.in4',
       'prefix'         => $var{prefix},
       'pseudo_dir'     => $var{pseudo_dir},
       'outdir'         => './',
       'nat'            => $var{nat},
       'celldm(1)'      => $var{celldm},
-      'nbnd'           => $var{tot_bands},
-      'vnbsp'          => $var{val_bands});
+      'nbnd'           => $var{tot_bands});
 
 } 
 
 sub create_dir{
 
    #current directory
-   my $gw_outdir = shift @_;
+   my $pbe_outdir = shift @_;
 
    #---------------------------------------------------------
-   #GW Outdir: Check, clean or create,
+   #PBE Outdir: Check, clean or create,
    #---------------------------------------------------------
-   if ( -d $gw_outdir ){ 
-      unlink glob "$gw_outdir/*" or warn " WARNING: Cannot delete contents of Directory $gw_outdir:$!";
+   if ( -d $pbe_outdir ){ 
+      unlink glob "$pbe_outdir/*" or warn " WARNING: Cannot delete contents of Directory $pbe_outdir:$!";
    }
    else {
-      mkdir $gw_outdir, 0755 or die " ERROR: Cannot Create Directory $gw_outdir:$!";
+      mkdir $pbe_outdir, 0755 or die " ERROR: Cannot Create Directory $pbe_outdir:$!";
    }
    #---------------------------------------------------------
 }

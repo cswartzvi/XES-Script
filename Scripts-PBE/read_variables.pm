@@ -47,13 +47,13 @@ sub read_variables{
       gs_outdir               => 'Data-Files_GS',     #outdir in QE files (GS)
       chmd_template           => '',                  #Excited Oxygen CHMD Template
       chmd_outdir             => 'Data-Files_CHMD',   #outdir in QE files (CHMD)
-      xes_steps               => '',                  #array reference -> which CHMD steps will perform XES calculations
+      xes_steps               => undef,               #array reference -> which CHMD steps will perform XES calculations
       pw_template             => '',                  #PW template Calculation (1/5)
       pwnscf_template         => '',                  #PWnscf template Calculation (2/5)
       cpnscf_template         => '',                  #CPnscf template Calculation (3/5)
       cpnscf_print_template   => '',                  #CPnscf print-out template Calculation (4/5)
-      gen_proj_template       => '',                  #Gen Projections tempalte (5/5)
-      pbe_outdir              => 'Data-Files_GW',     #outdir for QE files (All GWs)
+      gen_proj_template       => '',                  #Gen Projections template (5/5)
+      pbe_outdir              => 'Data-Files_PBE',    #outdir for QE files (All GWs)
       submit_template         => '',                  #submit bash script (PBS ..)
       para_prefix             => '',                  #Command to execute parallel run (aprun, mpirun,...)
       para_flags              => '',                  #Parallel command Flags (-n or -np MUST be last)
@@ -73,14 +73,16 @@ sub read_variables{
       #Split on the equal sign
       if (my @temp = split /\s*=\s*/, $line) {
 
+         #loop over the values of the hash
          while ( my ($key, $value) = each %var ) {
             if ($temp[0] eq $key){
 
                #remove any commas or spaces from the end of the line
-               $temp[0] =~ s/(\s+|,)\z//;
+               $temp[1] =~ s/(\s+|,)\z//;
 
                if ($key eq 'xes_steps'){
-                  $var{xes_steps} = [split ' ', $temp[0] ]; 
+                  #create an arrya reference to the steps
+                  $var{xes_steps} = [split ' ', $temp[1]]; 
                }
                else {
                   $var{$key} = $temp[1];
@@ -94,9 +96,8 @@ sub read_variables{
    #------------------------------------------------------
 
    #------------------------------------------------------
-   # Add a few values
+   # Alter and add a few values 
    #------------------------------------------------------
-   #TODO check the para_flags element
    #Add templates Directory to all templates!
    #if $append = 0 (first time through)
    if ($append){
@@ -105,7 +106,10 @@ sub read_variables{
             $var{$key} = $var{template_dir}.'/'.$var{$key};
          }
       }
+      #sort the xes_steps
+      @{$var{xes_steps}} = sort { $a <=> $b } @{$var{xes_steps}};
    }
+
    #Total Bands
    $var{tot_bands} = $var{val_bands} + $var{con_bands};
    #Total Atoms
@@ -115,13 +119,20 @@ sub read_variables{
    #------------------------------------------------------
    # Input Check 
    # TODO Remove this Input Check
+   # TODO Check to make sure none of the variables are undefined
    #------------------------------------------------------
    print " Input Check:\n";
-   #TODO Check to make sure none of the variables are undefined
-   while (my ($key, $value) = each %var){
-      #TODO Remove input check!
-      print "  \$var\{$key\} => $value \n"; 
+   while (my ($key, $value,) = each %var){
+      if ($key eq 'xes_steps') {
+         print "  \$var\{$key\} => @$value \n";
+      }
+      else{
+         print "  \$var\{$key\} => $value \n"; 
+      }
    }
+
+   #debug
+   print "PBE Steps @{$var{xes_steps}}\n";
    #------------------------------------------------------
  
    close($fh);
