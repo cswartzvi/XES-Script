@@ -34,10 +34,10 @@ my $cur_dir = cwd();
 # Read in input-file.in namelist (Created by gs)
 # IMPORTANT: This script is run INSIDE THE GW_OUTDIR
 #---------------------------------------------------------
-if (! -e './input-file.in'){
+if (! -e '../input-file.in'){
    die " ERROR Input File Not Specified : $!";
 }
-my %var = &read_variables(0, './input-file.in');
+my %var = &read_variables(0, '../input-file.in');
 #---------------------------------------------------------
 
 #******************************************************************************
@@ -161,8 +161,8 @@ my %var = &read_variables(0, './input-file.in');
    # Create fort.13
    #---------------------------------------------------------
    #TODO remove this hard code   
-   print `grep ! ./gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`, "\n";
-   my $etot1 = `grep ! ./gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`;
+   print `grep ! ../../Oxygen_1/$var{gw_outdir}_$GWcount/gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`, "\n";
+   my $etot1 = `grep ! ../../Oxygen_1/$var{gw_outdir}_$GWcount/gw_1.out${GWcount} | gawk '{printf "%f", \$5/2}'`;
 
    open my $fh_13, '>', 'fort.13' or die " ERROR: Cannot Open fort.13: $!";
    print $fh_13 " $var{val_bands} $etot1";
