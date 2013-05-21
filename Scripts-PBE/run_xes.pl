@@ -20,7 +20,11 @@ use Cwd 'cwd';
 use FindBin qw($Bin);
 
 require "$Bin/read_variables.pm";
-require "$Bin/Scripts/xml_tag.pm";
+require "$Bin/xml_tag.pm";
+
+#Main variables
+require "$Bin/mainvar.pl";
+our ($input_file, $atomic_pos_file);
 
 #Current PBE number 
 my $PBEcount = shift @ARGV;
@@ -35,10 +39,10 @@ my $cur_dir = cwd();
 # Read in input-file.in namelist (Created by gs)
 # IMPORTANT: This script is run INSIDE THE GW_OUTDIR
 #---------------------------------------------------------
-if (! -e '../input-file.in'){
+if (! -e "../$input_file"){
    die " ERROR Input File Not Specified : $!";
 }
-my %var = &read_variables(0, '../input-file.in');
+my %var = &read_variables(0, "../$input_file");
 #---------------------------------------------------------
 
 #******************************************************************************
@@ -105,13 +109,13 @@ my %var = &read_variables(0, '../input-file.in');
    
    #TODO remove hard codes
    #atomic postion of excited atom
-   open my $atoms_fh, '<', 'atomic_pos.dat' or die " ERROR: Cannot Open atomic_pos.dat: $!";
+   open my $atoms_fh, '<', $atomic_pos_file or die " ERROR: Cannot Open atomic_pos.dat: $!";
    my $exc_atom = <$atoms_fh>;
    $exc_atom =~ s/OO//;
    close($atoms_fh);
    
    #omega value (Volume of the cell)
-   open my $omega_fh, '<', $var{md_dir}.'/omega.dat' or die " ERROR: Cannot Open omega.dat: $!";
+   open my $omega_fh, '<', $var{main_dir}.'/omega.dat' or die " ERROR: Cannot Open omega.dat: $!";
    my $omega = <$omega_fh>;
    close($omega_fh);
    
@@ -162,7 +166,10 @@ my %var = &read_variables(0, '../input-file.in');
    # Create fort.13
    #---------------------------------------------------------
    #TODO remove this hard code   
-   my $etot1 = `grep ! ../../Oxygen_1/$var{pbe_outdir}_$PBEcount/gw_${PBEcount}.in1 | gawk '{printf "%f", \$5/2}'`;
+   my $etot1 = `grep ! ../../Oxygen_1/$var{pbe_outdir}_$PBEcount/pbe_$PBEcount.out1 | gawk '{printf "%f", \$5/2}'`;
+   print "grep ! ../../Oxygen_1/$var{pbe_outdir}_$PBEcount/pbe_$PBEcount.in1 | gawk \'{printf \"%f\", \$5/2}\'\n";
+   print "Debug2 : $etot1\n";
+   
 
    open my $fh_13, '>', 'fort.13' or die " ERROR: Cannot Open fort.13: $!";
    print $fh_13 " $var{val_bands} $etot1";
@@ -173,7 +180,7 @@ my %var = &read_variables(0, '../input-file.in');
    # Create fort.777
    #---------------------------------------------------------
    #TODO remove hard-code
-   my $etot = `grep ! gw_1.out* | gawk '{printf "%f", \$5/2}'`;
+   my $etot = `grep ! pbe_$PBEcount.out1 | gawk '{printf "%f", \$5/2}'`;
    open my $fh_777, '>', 'fort.777' or die " ERROR: Cannot Open fort.777: $!";
    print $fh_777 " $etot";
    close ($fh_777);

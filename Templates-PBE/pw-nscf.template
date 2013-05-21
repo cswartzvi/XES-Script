@@ -1,0 +1,36 @@
+#
+&control
+  calculation   = 'nscf',
+  restart_mode  = 'from_scratch',
+  wf_collect    = .TRUE.
+  prefix        = water
+  pseudo_dir    = ./
+  outdir        = ./Data-Files_GW
+/
+&system
+  ibrav         = 1,
+  celldm(1)     = 23.5170
+  nat           = 192
+  ntyp          = 3,
+  ecutwfc       = 71.0 ,
+  nbnd          = 512
+  nosym         = .true.,
+  tot_charge    = +1
+/
+ &electrons
+  diagonalization  = 'david',
+  mixing_mode      = 'plain',
+  mixing_beta      = 0.7 ,
+  mixing_ndim      = 8 ,
+  conv_thr         = 1.0d-6,
+/
+ &ions
+  upscale          = 10
+ /
+
+ATOMIC_SPECIES
+OO 15.9994  o+.pbe.tm.ncpp.rcut1.1.upf
+O  15.9994  O.pbe-mt.UPF
+H  2.01355  H_MT_PBE.UPF
+
+ATOMIC_POSITIONS

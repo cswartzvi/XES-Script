@@ -1,0 +1,14 @@
+&projections
+   spec_root   =  'KS_',
+   spec_ext    =  '.dat'
+   nbsp        =  256
+   print_xsf   =  .TRUE.
+   atomfile    =  'atoms.dat'
+   grid(1)     =  128,
+   grid(2)     =  128,
+   grid(3)     =  128,
+   alat(1)     =  23.5170,
+   alat(2)     =  23.5170,
+   alat(3)     =  23.5170,
+/
+

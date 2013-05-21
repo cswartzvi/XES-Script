@@ -19,6 +19,10 @@ use FindBin qw($Bin);
 
 sub create_qsub{
 
+   #Main variables
+   require "$Bin/mainvar.pl";
+   our ($atomic_pos_file, $gs_in, $gs_out, $chmd_in, $chmd_out, $inout, $xsf_in, $xsf_out);
+
    #---------------------------------------------
    # Inputs
    #---------------------------------------------
@@ -67,22 +71,18 @@ sub create_qsub{
 #------------------------------------------------------
 print <<EOF;
 
+####################################################################
+#-------------------------------------------------------------------
 #This portion of the command script was generated automatically
 #Edit it and you will get what you deserve
+#-------------------------------------------------------------------
+####################################################################
 
-##the atoms-file header
-cat > atoms.dat <<END
-   $var{nat} 2 0
-   $var{celldm}  0.00000000    0.00000000
-   0.00000000    $var{celldm}  0.00000000
-   0.00000000    0.00000000    $var{celldm} 
-
-END
-
-function clean_copy {
+function clean_move {
   if [ -d \$2 ]; then /bin/rm -r \$2; fi
   if [ ! -d \$2 ]; then mkdir \$2; fi
-  cp -r \$1/* \$2
+  #cp -r \$1/* \$2
+  mv \$1 \$2
 }
 
 #Redirect all STDOUT to file
@@ -90,32 +90,41 @@ exec 1> $output_file
 
 cd $pathname
 
+
 #***********************************************************
 #Run the Groundstate Calculation
 #***********************************************************
-cd $var{gs_outdir}
-echo "GS Calculation Started..." | tee $error_log
-if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < gs.in > gs.out 2>> $error_log ; then
-   echo "...GS Calculation Complete"
-   cd ..
+if [ "$var{gs_skip}" -eq "0" ]; then
+   cd $var{gs_outdir}
+   echo "GS Calculation Started..." | tee $error_log
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < $gs_in > $gs_out 2>> $error_log ; then
+      echo "...GS Calculation Complete"
+      cd ..
+   else
+      echo "GS Calculation Failed (Check $error_log)!!"
+      exit
+   fi
 else
-   echo "GS Calculation Failed (Check $error_log)!!"
-   ecit
+   echo "GS Calculation is Skipped!!"
 fi
 #***********************************************************
 
 #***********************************************************
 # CHMD Calculations
 #***********************************************************
-${scripts_dir}/create_chmd.pl $num
-cd $var{chmd_outdir}
-echo "CHMD Calculation Started..." | tee $error_log
-if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < chmd.in > chmd.out 2>> $error_log; then
-   echo "...CHMD Calculation Complete"
-   cd ..
+$scripts_dir/create_chmd.pl $num
+if [ \$? -ne "1" ]; then
+   cd $var{chmd_outdir}
+   echo "CHMD Calculation Started..." | tee $error_log
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < $chmd_in > $chmd_out 2>> $error_log; then
+      echo "...CHMD Calculation Complete"
+      cd ..
+   else
+      echo "CHMD Calculation Failed (Check $error_log)!!"
+      exit
+   fi
 else
-   echo "CHMD Calculation Failed (Check $error_log)!!"
-   exit
+   echo "CHMD Skipped!!"
 fi
 #***********************************************************
 
@@ -123,11 +132,12 @@ fi
 # PBE calculations
 #***********************************************************
 #Set up and run the PBE Calculations
-${scripts_dir}/create_pbe.pl
+$scripts_dir/create_pbe.pl
 
 
 for PBEcount in @{$var{xes_steps}}
 do 
+
 
    #-----------------------------------
    #Change to the current directory
@@ -135,14 +145,14 @@ do
    #-----------------------------------
    
    echo ""
-   echo "PBS Calculation: \$PBEcount" | tee $error_log
+   echo "PBE Calculation: \$PBEcount" | tee $error_log
 
 
    #-----------------------------------
-   #Submit the PWscf Calculation
+   #1) Submit the PWscf Calculation
    #-----------------------------------
    echo "PWscf Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < pbe_\${PBEcount}.in1 > pbe_\${PBEcount}.out1 2>> $error_log; then
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < ${inout}_\${PBEcount}.in1 > ${inout}_\${PBEcount}.out1 2>> $error_log; then
      echo "...PWscf Calculation Complete"
    else
      echo"PWscf Calculation Failed (Check $error_log)!!!"
@@ -151,11 +161,11 @@ do
    #-----------------------------------
 
    #-----------------------------------
-   #Submit PWnscf Calculation
+   #2) Submit PWnscf Calculation
    #Restart: $var{prefix}.save (From PWscf Calculation: no need to do anything)
    #-----------------------------------
       echo "PWnscf Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < pbe_\${PBEcount}.in2 > pbe_\${PBEcount}.out2 2>> $error_log; then
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{pw_qe} < ${inout}_\${PBEcount}.in2 > ${inout}_\${PBEcount}.out2 2>> $error_log; then
       echo "...PWnscf Calculation Complete"
    else
       echo "PWnscf Calculation Failed (Check $error_log)!!"
@@ -163,15 +173,15 @@ do
    fi
 
    #Copy $var{prefix}.save to $var{prefix}_50.save 
-   clean_copy $var{prefix}.save $var{prefix}_50.save
+   clean_move $var{prefix}.save $var{prefix}_50.save
    #-----------------------------------
 
    #-----------------------------------
-   #Submit CPnscf Calculation
+   #3) Submit CPnscf Calculation
    #Restart: $var{prefix}_50.save from the PWnscf Calulation
    #-----------------------------------
       echo "CPnscf Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < pbe_\${PBEcount}.in3 > pbe_\${PBEcount}.out3 2>> $error_log; then
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_mod_qe} < ${inout}_\${PBEcount}.in3 > ${inout}_\${PBEcount}.out3a 2>> $error_log; then
       echo "...CPnscf Calculation Complete"
    else
       echo "CPnscf Calculation Failed (Check $error_log)!!"
@@ -181,15 +191,42 @@ do
    #-----------------------------------
    
    #-----------------------------------
-   #Submit CPnscf Print-Out Calculation
+   #TODO This is currently a hack: the QE needs to be modified to do this at the ned of the run
+   #4) Submit CPnscf Print cp_wf.dat 
    #Restart: $var{prefix}_50.save from the first CPnscf Calulation
    #-----------------------------------
-      echo "CPnscf Print-Out Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_qe} < pbe_\${PBEcount}.in4 > pbe_\${PBEcount}.out4 2>> $error_log; then
+   sed -i  -e 's/\\(nsteps\\s\\+=\\s\\+\\).*/\\1 1/g' pbe_\${PBEcount}.in3
+      echo "CPnscf Calculation 2 Started..." | tee -a $error_log
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_mod_qe} < ${inout}_\${PBEcount}.in3 > ${inout}_\${PBEcount}.out3b 2>> $error_log; then
+      echo "...CPnscf Calculation Complete"
+   else
+      echo "CPnscf Calculation Failed (Check $error_log)!!"
+      exit
+   fi
+   #-----------------------------------
+
+   #*******************************************************************
+   # The following is for the Gen Porjections print-out
+   #*******************************************************************
+   #the atoms-file header
+   cat > atoms.dat <<END
+      $var{nat} 2 0
+      $var{celldm}  0.00000000    0.00000000
+      0.00000000    $var{celldm}  0.00000000
+      0.00000000    0.00000000    $var{celldm} 
+
+END
+
+   cat > submit-wave-print.sh <<END
+   #-----------------------------------
+   #5)Submit CPnscf Print-Out Wavefunction Calculation 
+   #Restart: $var{prefix}_50.save from the second CPnscf Calulation
+   #-----------------------------------
+   echo "CPnscf Print-Out Calculation Started..." | tee -a $error_log
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{cp_mod_qe} < ${inout}_\${PBEcount}.in4 > ${inout}_\${PBEcount}.out4 2>> $error_log; then
       echo "...CPnscf Print-Out Calculation Complete"
    else
       echo "CPnscf Print-Out Calculation Failed (Check $error_log)!!"
-      exit
    fi
    #-----------------------------------
 
@@ -197,23 +234,31 @@ do
    #Gen projections
    #-----------------------------------
 
-   tail -$var{nat} pbe_\${PBEcount}.in1 >> atoms.dat
+   cat $atomic_pos_file >> atoms.dat
    sed -i -e 's/OO/16/g' -e 's/O/8/g' -e 's/H/1/g' atoms.dat
 
-      echo "General Projections Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{gen_proj} < xsf.in > xsf.out 2>> $error_log; then
+   echo "General Projections Started..." | tee -a $error_log
+   if $var{para_prefix} $var{para_flags} $var{procs} $var{gen_proj} < $xsf_in > $xsf_out 2>> $error_log; then
       echo "...General projections Complete"
    else
       echo "General Projections Failed (Check $error_log)!!"
-      exit
    fi
 
-   \$wave_dir=wavefunctions
-   if [ ! -d \$wave_dir ];then
-      mkdir \$wave_dir
+   wave_dir=wavefunctions
+   if [ ! -d \\\$wave_dir ];then
+      mkdir \\\$wave_dir
    fi
-   mv KS_* WAN_* \$wave_dir
+   mv KS_* WAN_* \\\$wave_dir
+END
+
    #-----------------------------------
+   #Run the Gen-Projections
+   #-----------------------------------
+   if [ "$var{gen_proj_run}" -ne "0" ]; then
+      bash submit-wave-print.sh
+   fi
+   #-----------------------------------
+   #*******************************************************************
 
 
    #-----------------------------------
@@ -238,7 +283,7 @@ done
 
 EOF
 #------------------------------------------------------
-select STDIN;
+select STDOUT;
 close($submit_fh);
 
 return $submit_script;

@@ -14,6 +14,8 @@
 
 use warnings;
 use strict;
+use FindBin qw($Bin);
+
 
 sub read_variables{
 
@@ -22,26 +24,26 @@ sub read_variables{
    my $append = shift @_;
 
    #Get the filename
-   my ($input_file) = @_;
+   my ($input_file) = shift @_;
    open my $fh, '<', $input_file or die " ERROR: Cannot Open $input_file : $!";
 
-   #------------------------------------------------------
-   #Set Defaults for the main variables
-   #TODO Remove some of these and read directly form output file
-   #------------------------------------------------------
-   my %var = (
+   #Main Run-Time Variables
+   my %var;
+   %var = (
       config_start            => 1,                   #Starting Excited Oxygen
       config_stop             => '',                  #Ending Excited Oxygen
       procs                   => '',                  #Number of normal Processor (PW, CP, PWnscf, CPnscf)
       prefix                  => '',                  #Prefix for the QE input Files
       numO                    => '',                  #Number of Oxygens
       numH                    => '',                  #Number of Hydrogens
+      nat                     => '',                  #Total Atoms (Oxygen + Hydrogen)
       val_bands               => '',                  #Number of Valence Bands (used in GS, CHMD, PW, and CP)
       con_bands               => '',                  #Number of Conduction Bands (used in PWnscf, CPnscf)
+      tot_bands               => '',                  #Total Valence and Conduction bands
       celldm                  => '',                  #Lattice constant (From MD Simulation)
       pseudo_dir              => '',                  #Pseudopotential Directory
       template_dir            => '',                  #Directory for ALL Templates
-      md_dir                  => '',                  #Directory of the Original MD Simulation
+      main_dir                => '',                  #Directory of the Original MD Simulation
       md_xml                  => '',                  #XMl File from the Original MD SImulation
       gs_template             => '',                  #Excited Oxygen GS Template
       gs_outdir               => 'Data-Files_GS',     #outdir in QE files (GS)
@@ -59,11 +61,11 @@ sub read_variables{
       para_flags              => '',                  #Parallel command Flags (-n or -np MUST be last)
       pw_qe                   => '',                  #Path to QE PW executable
       cp_qe                   => '',                  #Path to QE CP executable
+      cp_mod_qe               => '',                  #Path to MODIFIFED QE CP executable (Was used in the cohsex) 
       gen_proj                => '',                  #Path to Gen projections
+      gen_proj_run            => 0,                   #Flag to run the output of wavefunctions (default = off)
+      gs_skip                 => 0,                   #True/false if the gs step has already finished
    );
-   #------------------------------------------------------
-
-
    #------------------------------------------------------
    #Loop through the input file
    #------------------------------------------------------
@@ -116,26 +118,78 @@ sub read_variables{
    $var{nat} = $var{numO} + $var{numH};
    #------------------------------------------------------
 
-   #------------------------------------------------------
-   # Input Check 
-   # TODO Remove this Input Check
-   # TODO Check to make sure none of the variables are undefined
-   #------------------------------------------------------
-   print " Input Check:\n";
-   while (my ($key, $value,) = each %var){
-      if ($key eq 'xes_steps') {
-         print "  \$var\{$key\} => @$value \n";
-      }
-      else{
-         print "  \$var\{$key\} => $value \n"; 
-      }
-   }
-
-   #debug
-   print "PBE Steps @{$var{xes_steps}}\n";
-   #------------------------------------------------------
- 
    close($fh);
    return %var;
+}
+
+sub write_variables{
+
+   #Main variables that have the name of the inputfile
+   require "$Bin/mainvar.pl";
+   our $input_file;
+
+   #hash to be printed
+   my $hash_ref = shift @_;
+   my %var  = %{$hash_ref};
+
+   #current directory
+   my $cur_dir = shift @_;
+
+   open my $input_fh, '>', "$cur_dir/$input_file" or die " ERROR: Cannot Open $input_file: $!";
+   select $input_fh;
+
+   while (my ($key, $value) = each %var ){
+
+      if ($key eq 'xes_steps') {
+
+         #make sure we are not abotu to print an undef array ref
+         if (defined($value)){
+            my $print_line = "@{$var{$key}}";
+            printf("%-25s = %-25s \n", $key, $print_line );
+         }
+
+      }
+      elsif ($key eq 'pbe_skip') {
+
+         #make sure we are not abotu to print an undef array ref
+         if (defined($value)){
+            my $print_line = "@{$var{$key}}";
+            printf("%-25s = %-25s \n", $key, $print_line );
+         }
+
+      }
+      elsif (defined($value)) {
+         printf("%-25s = %-25s \n", $key, $var{$key}); 
+      }
+
+   }
+   select STDOUT;
+   close ($input_fh);
+}
+
+sub stdout_variables{
+
+   #hash to be printed
+   my $hash_ref = shift @_;
+   my %var  = %{$hash_ref};
+
+   print "Input Variables:\n";
+   foreach my $key ( sort keys %var ){
+
+      if ($key eq 'xes_steps') {
+
+         #make sure we are not about to print an undef array ref
+         if ( defined($var{$key}) ){
+            my $print_line = "@{$var{$key}}";
+            printf(" %-25s = %-25s \n", $key, $print_line );
+         }
+
+      }
+      else{
+         printf(" %-25s = %-25s \n", $key, $var{$key}); 
+      }
+
+   }
+   print "\n";
 }
 1;

@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 #----------------------------------------------------------------------------
-# Script to read the previous CHMD output file and find printed 
-# ATOMIC_POSITIONS tags, then copy/append these to the follwoing PBE templates:
+# Script to read the previous CHMD position file and 
+# then copy/append these to the follwoing PBE templates:
 # pw_scf.in             --> pbe_*.in1 
 # pw_nscf.in            --> pbe_*.in2 
 # cp_nscf.in            --> pbe_*.in3
@@ -29,13 +29,20 @@ use FindBin qw($Bin);
 require "$Bin/read_variables.pm";
 require "$Bin/create_input.pm";
 
+#Main variables
+require "$Bin/mainvar.pl";
+our ($input_file, $init_atomic_pos_file, $atomic_pos_file, $xsf_in, $xsf_out);
+
+#TODO Remove all hardcoded pbe_
+#see mainvar.pl
+#
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
 #---------------------------------------------------------
-if (! -e '../input-file.in'){
+if (! -e "./$input_file"){
    die " ERROR Input File Not Specified : $!";
 }
-my %var = &read_variables(0, '../input-file.in');
+my %var = &read_variables(0, "./$input_file");
 #---------------------------------------------------------
 
 #---------------------------------------------------------
@@ -48,7 +55,7 @@ if (! -e $chmd_pos_file){
 #---------------------------------------------------------
 
 #---------------------------------------------------------
-# Open CHMD Output File
+# Open CHMD position File
 #---------------------------------------------------------
 #Read in the previous CHMD Calculation
 open my $chmd_pos_fh, '<', $chmd_pos_file or die " ERROR: Cannot Open File $chmd_pos_file: $!";
@@ -60,9 +67,6 @@ open my $chmd_pos_fh, '<', $chmd_pos_file or die " ERROR: Cannot Open File $chmd
 # Get the correct atomic postions and append to all template files 
 #*********************************************************
 
-#File with current pbe Atomic Positions
-my $atomic_pos_file = 'atomic_pos.dat';
-
 #Shift the first value of the xes_steps
 my $ncount = shift @{$var{xes_steps}};
 
@@ -70,16 +74,14 @@ my $ncount = shift @{$var{xes_steps}};
 #First setup should be BEFORE the CHMD (i.e init_atomic_pos)
 #---------------------------------------------------------
 if ($ncount == 0){
+
    #Name and create the current pbe outdir
-   &create_dir($var{pbe_outdir}.'_'.$ncount);
+   &create_pbe_dir("$var{pbe_outdir}_$ncount");
    system(" echo \" CHMD steps = 0, CHMD time = 0.0ps\" > $var{pbe_outdir}_$ncount/README");
 
    #Copy all the pbe templates into pbe_*.in1, ... , pbe_*.in5 in the $var{pbe_outdir}_${ncount}
    #(See above for description of each)
    &copy_pbe_templates($ncount, \%var);
-
-   #Atomic postion files (Used later in the scripts)
-   my $init_atomic_pos_file = './init_atomic_pos.dat';
 
    #Check to see if the initial position file exist
    if ( ! -e  $init_atomic_pos_file ){
@@ -92,12 +94,12 @@ if ($ncount == 0){
 
    #Create the four main files
    foreach my $file ( 1 .. 4){
-      my $temp_file = $var{pbe_outdir}.'_'.${ncount}.'/pbe_'.${ncount}.'.in'.${file};  
+      my $temp_file = "$var{pbe_outdir}_$ncount/pbe_$ncount.in$file";  
       system("cat $init_atomic_pos_file >> $temp_file");
    }
 
    #Create the xsf.in file
-   system("cp $var{template_dir}/$var{gen_proj_template} $var{pbe_outdir}_${ncount}/xsf.in ");
+   system("cp $var{gen_proj_template} $var{pbe_outdir}_${ncount}/$xsf_in ");
 
    #Shift the next value of the xes_steps
    $ncount = shift @{$var{xes_steps}};
@@ -119,7 +121,7 @@ while (my $line = <$chmd_pos_fh>){
       my ($cur_step, $cur_time) = (split ' ', $line)[0,1];
       next unless ( $ncount == $cur_step);
 
-      &create_dir($var{pbe_outdir}.'_'.$ncount);
+      &create_pbe_dir($var{pbe_outdir}.'_'.$ncount);
       system(" echo \" CHMD steps = $cur_step, CHMD time = ${cur_time}ps\" > $var{pbe_outdir}_$ncount/README");
 
       #Copy all the pbe templates into pbe_*.in1, ... , pbe_*.in4 in the $var{pbe_outdir}_${ncount}
@@ -164,12 +166,13 @@ while (my $line = <$chmd_pos_fh>){
       #Create the main files
       foreach my $file (1 .. 4){
          #Append the template files
-         my $temp_file = $var{pbe_outdir}.'_'.$ncount.'/pbe_'.$ncount.'.in'.$file;
+         my $temp_file = "$var{pbe_outdir}_$ncount/pbe_$ncount.in$file";
          system (" cat $var{pbe_outdir}_$ncount/$atomic_pos_file >> $temp_file ");
       }
 
       #Create the xsf.in file
-      system("cp $var{template_dir}/$var{gen_proj_template} $var{pbe_outdir}_${ncount}/xsf.in ");
+      #TODO adjust this for the number of states
+      system("cp $var{gen_proj_template} $var{pbe_outdir}_${ncount}/$xsf_in ");
 
       #Shift the next value of the xes_steps
       $ncount = shift @{$var{xes_steps}};
@@ -233,7 +236,7 @@ sub copy_pbe_templates{
 
 } 
 
-sub create_dir{
+sub create_pbe_dir{
 
    #current directory
    my $pbe_outdir = shift @_;
@@ -242,7 +245,9 @@ sub create_dir{
    #PBE Outdir: Check, clean or create,
    #---------------------------------------------------------
    if ( -d $pbe_outdir ){ 
-      unlink glob "$pbe_outdir/*" or warn " WARNING: Cannot delete contents of Directory $pbe_outdir:$!";
+      #TODO Check if the last calculation contains JOB DONE. IF so remove this from the 
+      #the $var{xes_steps}
+      print " $pbe_outdir exists \n";      
    }
    else {
       mkdir $pbe_outdir, 0755 or die " ERROR: Cannot Create Directory $pbe_outdir:$!";

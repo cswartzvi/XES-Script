@@ -1,0 +1,47 @@
+#Number of configurations
+config_start      = 35
+config_stop       = 48
+procs             = 128
+xes_steps         = 0 10 20 30 40 50 60 70 80 90 100 150
+gen_proj_run      = 1 
+
+#Some Set-up information
+prefix            = water
+numO              = 64
+numH              = 128
+celldm            = 23.5170
+pseudo_dir        = /scratch/scratchdirs/cswartz/XES_PBE_Testing-2/pseudo
+val_bands         = 256
+con_bands         = 256
+
+#Template Directrory
+template_dir      = /scratch/scratchdirs/cswartz/XES_PBE_Testing-2/Templates
+
+#previous MD SIulation Information
+main_dir          = /scratch/scratchdirs/cswartz/XES_PBE_Testing-2
+md_xml            = /scratch/scratchdirs/cswartz/XES_PBE_Testing-2/MD-Simulation/data-file.xml
+
+#Data for the Groundstate Calculations
+gs_template       = gs.template
+gs_outdir         = Data-Files_GS
+
+#Data for the CHMD Calculations
+chmd_template     = chmd.template
+chmd_outdir       = Data-Files_CHMD
+
+#Values for the GW Calculations
+pw_template             = pw.template
+pwnscf_template         = pw-nscf.template
+cpnscf_template         = cp-nscf.template
+cpnscf_print_template   = cp-nscf-print.template
+gen_proj_template       = gen-proj.template
+pbe_outdir              = Data-Files_PBE
+
+#Jobs control vaiables
+submit_template   = submit.cmd
+para_prefix       = aprun
+para_flags        = -n
+cp_mod_qe         = /global/homes/c/cswartz/Software/cohsex_lf/bin/cp.x
+pw_qe             = /global/homes/c/cswartz/Software/ffn2_tsvdw_master/bin/pw.x 
+cp_qe             = /global/homes/c/cswartz/Software/ffn2_tsvdw_master/bin/cp.x 
+gen_proj          = /global/homes/c/cswartz/Ext_Programs/Gen-Projections/print-xsf.x

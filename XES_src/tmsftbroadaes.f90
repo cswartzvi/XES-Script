@@ -16,8 +16,8 @@
 
    read(12,*)alpha, n_st
 
-   emin = -60.0d0
-   emax = -10.d0
+   emin = -50.0d0
+   emax = 0.d0
 
    ra2   = 0.5d0/alpha/alpha
    fact  = 1.0d0/sqrt(2.0d0*pi)/alpha

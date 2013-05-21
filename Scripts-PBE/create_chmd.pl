@@ -15,35 +15,71 @@ use warnings;
 use strict;
 use File::Copy qw(copy);
 use Cwd 'cwd';
+use FindBin qw($Bin);
 
-#TODO configure script should adjust these
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/read_variables.pm';
-require '/global/homes/c/cswartz/Scripts/XES_Script/Scripts/create_input.pm';
+#Main variables
+require "$Bin/mainvar.pl";
+our ($input_file, $init_atomic_pos_file, $atomic_pos_file, $chmd_in, $chmd_out);
 
-#Cuurent Number of the Excited Atom
+require "$Bin/read_variables.pm";
+require "$Bin/create_input.pm";
+
+#Current Number of the Excited Atom
 my $num = shift @ARGV;
 
 #Root Output Directory -> Make CHMD outdir
 my $cur_dir = cwd();
 
+print"--------------------------------------------------------\n";
+print" CHMD: cur_dir\n";
+print"--------------------------------------------------------\n";
+
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
 #---------------------------------------------------------
-if (! -e './input-file.in'){
+if (! -e "./$input_file"){
    die " ERROR Input File Not Specified : $!";
 }
-my %var = &read_variables(0, './input-file.in');
+
+my %var = &read_variables(0, "./$input_file");
+
+#reset the :
+&stdout_variables(\%var);
+
 #---------------------------------------------------------
 
 #----------------------------------------------
 #CHMD Outdir: Check, clean or create, copy 
 #----------------------------------------------
 if ( -d $var{chmd_outdir} ){ 
-   unlink glob "$var{chmd_outdir}/*" or warn " ERROR: Cannot delete contents of Directory:$!";
+   print " $var{chmd_outdir} exists, checking previous CHMD...\n";
+
+   #Check to see if the chmd.out file exists
+   if (-f "$var{chmd_outdir}/$chmd_out" ){
+      print " $var{chmd_outdir}/$chmd_out exists\n";
+
+      #Check to be sure that the Job Was complete
+      my $temp = `grep -q \"JOB DONE\" $var{chmd_outdir}/$chmd_out; echo \$?`;
+      if ( $temp  == 0 ){
+         print " Previous CHMD was completed,  updating $input_file to skip CHMD.\n";
+         exit 1;
+      }
+      else {
+         print " Previous CHMD was NOT completed\n";
+         unlink glob "$var{chmd_outdir}/*" or warn " ERROR: Cannot delete contents of Directory:$!";
+      }
+   }
+   else {
+      print " No Previous $chmd_out file found, cleaning directory contents.\n";
+      unlink glob "$var{chmd_outdir}/*" or warn " ERROR: Cannot delete contents of Directory:$!";
+   }
+
 }
 else {
+   print " Creating $var{chmd_outdir}.\n";
    mkdir $var{chmd_outdir}, 0755 or die " ERROR: Cannot Create Directory:$!";
 }
+print "\n";
 
 #Copy the contents of the GS save directory to the CHMD save directory
 system("cp -r $var{gs_outdir}/$var{prefix}_50.save $var{chmd_outdir}") ;
@@ -52,7 +88,7 @@ system("cp -r $var{gs_outdir}/$var{prefix}_50.save $var{chmd_outdir}") ;
 #----------------------------------------------
 # Copy/append the CHMD template with atomic positions
 #----------------------------------------------
-&create_input($var{chmd_template}, $var{chmd_outdir}.'/chmd.in', 
+&create_input($var{chmd_template}, "$var{chmd_outdir}/$chmd_in", 
    'prefix'         => $var{prefix},
    'pseudo_dir'     => $var{pseudo_dir},
    'outdir'         => './',
@@ -62,26 +98,29 @@ system("cp -r $var{gs_outdir}/$var{prefix}_50.save $var{chmd_outdir}") ;
 
 # Append the CHMD input File with 
 # atomic_init_pos.dat from create_gs.pl
-my $atomic_pos_file = './init_atomic_pos.dat';
-if ( ! -e  $atomic_pos_file ){
-   die " ERROR: $atomic_pos_file Not Found in $cur_dir";
+if ( ! -e  $init_atomic_pos_file ){
+   die " ERROR: $init_atomic_pos_file Not Found in $cur_dir";
 }
-system("cat $atomic_pos_file >> $var{chmd_outdir}/chmd.in");
+system("cat $init_atomic_pos_file >> $var{chmd_outdir}/$chmd_in");
 #----------------------------------------------
 
 #----------------------------------------------
 # Open all Files
 #----------------------------------------------
 #XML File from the previous GS Calculation
-my $gs_xml =  $var{gs_outdir}.'/'.$var{prefix}.'_50.save/data-file.xml';
+my $gs_xml =  "$var{gs_outdir}/$var{prefix}_50.save/data-file.xml";
 open my $gs_xml_fh, '<', $gs_xml 
    or die " ERROR: Cannot Open $gs_xml ($!)"; 
 
 #XML File for the CHMD
-my $chmd_xml =  $var{chmd_outdir}.'/'.$var{prefix}.'_50.save/data-file.xml';
+my $chmd_xml =  "$var{chmd_outdir}/$var{prefix}_50.save/data-file.xml";
 open my $chmd_xml_fh, '>', $chmd_xml 
    or die " ERROR: Cannot Open $chmd_xml ($!)"; 
+
+#------------------------------------
+#select all OUPUT for the new chmd xml data-file.xml
 select $chmd_xml_fh;
+#------------------------------------
 
 #Open all files that need to be changed in the current XML File
 #Note: Certain tags will NOT need to changed. The stau0
@@ -89,13 +128,13 @@ select $chmd_xml_fh;
 #Atomic positions, which were changed in create_gs.pl
 
 #Open the svel STEP0 from the MD_Simulation
-my @svel0 = &open_read($var{md_dir}.'/svel_STEP0.dat');
+my @svel0 = &open_read("$var{main_dir}/svel_STEP0.dat");
 
 #Open the stau STEPM from the MD_Simulation
-my @stauM = &open_read($var{md_dir}.'/stau_STEPM.dat'); 
+my @stauM = &open_read("$var{main_dir}/stau_STEPM.dat"); 
 
 #Open the svel STEPM from the MD_Simulation
-my @svelM = &open_read($var{md_dir}.'/svel_STEPM.dat');
+my @svelM = &open_read("$var{main_dir}/svel_STEPM.dat");
 #----------------------------------------------
 
 #----------------------------------------------
@@ -146,6 +185,9 @@ while (my $line = <$gs_xml_fh>){
          }
 
 }
+select STDOUT;
+close($gs_xml_fh);
+close($chmd_xml_fh);
 #----------------------------------------------
 
 ##################################################################################

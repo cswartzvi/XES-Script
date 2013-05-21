@@ -1,0 +1,59 @@
+#
+#
+&CONTROL
+  calculation   = "cp-wf-nscf",
+  restart_mode  = 'restart',
+  nstep         = 1,
+  iprint        = 1,
+  isave         = 1,
+  dt            = 6.D0,
+  etot_conv_thr = 1.D-6,
+  ekin_conv_thr = 5.D-5,
+  max_seconds   = 1700,
+  prefix        = water
+  pseudo_dir    = ./
+  outdir        = ./Data-Files_GW
+/
+&SYSTEM
+  ibrav         =  1,
+  celldm(1)     = 23.5170
+  nat           = 192
+  ntyp          = 3,
+  nbnd          = 512
+  ecutwfc       = 71.0D0
+  tot_charge    = +1
+/
+&ELECTRONS
+  emass             = 400.D0,
+  emass_cutoff      = 3.D0,
+  ortho_eps         = 1.D-8,
+  ortho_max         = 300,
+  electron_dynamics = "verlet",
+/
+&IONS
+  ion_dynamics = "none",
+/
+&WANNIER
+  nit    =  100 ,
+  calwf  =  4 ,
+  tolw   =  5.D-4,
+  adapt  =  .false.,
+  wfdt   =  2.D0 ,
+  wf_q   =  500 ,
+  wf_friction = 0.3d0,
+  nsteps =  1,
+  poisson_eps = 1.D-5,
+  dis_cutoff  = 7.0,
+  exx_ps_rcut = 5.0,
+  exx_me_rcut = 10.0,
+  neigh = 46,
+/
+ATOMIC_SPECIES
+OO 15.9994  o+.pbe.tm.ncpp.rcut1.1.upf
+O  15.9994  O.pbe-mt.UPF
+H  2.01355  H_MT_PBE.UPF
+
+KSOUT
+256
+
+ATOMIC_POSITIONS {bohr}

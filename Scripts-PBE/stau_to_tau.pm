@@ -7,13 +7,14 @@
 #        2) stau tag Pathname
 #        3) output directory
 #
-# OUTPUT: 1) atoms File
+# OUTPUT: 1) tau.dat File
 #----------------------------------------------------------------------------
 
 use warnings;
 use strict;
 
 sub stau_to_tau{
+   
    #unit cell matirx, scaled and real coordinates
    my (@ht, @stau, @tau);
 
@@ -30,7 +31,7 @@ sub stau_to_tau{
    $dir =~ s/\/\z//;
 
    #Output atoms file
-   open my $output_fh, '>', $dir.'/atoms.dat' or die " ERROR: Cannot open File ($!) ";
+   open my $output_fh, '>', $dir.'/tau.dat' or die " ERROR: Cannot open File ($!) ";
 
    #output omega file
    open my $omega_fh, '>', $dir.'/omega.dat' or die " ERROR: Cannot open File ($!) ";
@@ -63,13 +64,11 @@ sub stau_to_tau{
 
    my $ncount=0;
    while ( $line !~ /<\/stau>/){
-      #TODO Remove this issue with the negative sign
-      #Add a space to remove the issue with negative signs in the first column
-      $line = ' '.$line;
 
       #Now, with the space, split the temp
-      my @temp = split /\s+/, $line;
-      ($stau[$ncount][0], $stau[$ncount][1], $stau[$ncount][2]) = splice @temp, 1;
+      #my @temp = split ' ', $line;
+      #($stau[$ncount][0], $stau[$ncount][1], $stau[$ncount][2]) = splice @temp, 1;
+      @{$stau[$ncount]}[0,1,2] = split ' ', $line;
 
       #Read next line iterate the counter
       chomp($line = <$stau_fh>);
@@ -100,7 +99,7 @@ sub stau_to_tau{
    printf "%20.10f", $ht[0][0]*$ht[1][1]*$ht[2][2]; 
    #---------------------------------------------
 
-   select STDIN;
+   select STDOUT;
    close($output_fh);
    close($omega_fh);
 }
