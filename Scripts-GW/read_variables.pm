@@ -52,11 +52,12 @@ sub read_variables{
       chmd_outdir             => 'Data-Files_CHMD',   #outdir in QE files (CHMD)
       xes_steps               => undef,               #array reference -> which CHMD steps will perform XES calculations
       pw_template             => '',                  #PW template Calculation (1/6)
-      pwnscf_template         => '',                  #PWnscf template Calculation (2/6)
-      cpnscf_template         => '',                  #CPnscf template Calculation (3/6)
-      cpnscf_print_template   => '',                  #CPnscf print-out template Calculation (4/6)
-      gw_template             => '',                  #GW Local Field Calculation (5/6)
-      gen_proj_template       => '',                  #Gen Projections template (6/6)
+      cp_template             => '',                  #CP template Calculation (2/6)
+      pwnscf_template         => '',                  #PWnscf template Calculation (3/6)
+      cpnscf_template         => '',                  #CPnscf template Calculation (4/6)
+      cpnscf_print_template   => '',                  #CPnscf print-out template Calculation (5/6)
+      gw_template             => '',                  #GW Local Field Calculation (6/6)
+      gen_proj_template       => '',                  #Gen Projections template 
       xes_outdir              => 'Data-Files_GW',     #outdir for QE files (All XES)
       submit_template         => '',                  #submit bash script (PBS ..)
       para_prefix             => '',                  #Command to execute parallel run (aprun, mpirun,...)
