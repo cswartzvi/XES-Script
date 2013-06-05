@@ -35,7 +35,8 @@ require "$Bin/create_input.pm";
 require "$Bin/mainvar.pl";
 our ($input_file, $init_atomic_pos_file, $atomic_pos_file, $xsf_in, $xsf_out, $inout);
 
-#see mainvar.pl
+#XES (GW) Calculation types
+my @xes_cals = ('1', '2', '3', '4', '4b', '5');
 #
 #---------------------------------------------------------
 # Read in input-file.in namelist (Created by gs)
@@ -94,7 +95,7 @@ if ($ncount == 0){
    }
 
    #Create the five main files
-   foreach my $file ( 1 .. 6){
+   foreach my $file (@xes_cals){
       my $temp_file = "$var{xes_outdir}_$ncount/${inout}_$ncount.in$file";  
       system("cat $init_atomic_pos_file >> $temp_file");
    }
@@ -165,7 +166,7 @@ while (my $line = <$chmd_pos_fh>){
       close($fh);
 
       #Create the main files
-      foreach my $file (1 .. 6){
+      foreach my $file (@xes_cals){
          #Append the template files
          my $temp_file = "$var{xes_outdir}_$ncount/${inout}_$ncount.in$file";
          system (" cat $var{xes_outdir}_$ncount/$atomic_pos_file >> $temp_file ");
