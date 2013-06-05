@@ -10,7 +10,7 @@
 # the GW_OUTDIR that is currently being run 
 # ---> IF NOT this will not work
 #
-# INPUT: 1) Current PBE Number (For the shift of the spectrum)
+# INPUT: 1) Current XES Number (For the shift of the spectrum)
 #        2) The Main directroy of the XES Program
 #---------------------------------------------------------------------------
 #TODO Check that the programs exist and have these names
@@ -24,10 +24,10 @@ require "$Bin/xml_tag.pm";
 
 #Main variables
 require "$Bin/mainvar.pl";
-our ($input_file, $atomic_pos_file);
+our ($input_file, $atomic_pos_file, $inout);
 
-#Current PBE number 
-my $PBEcount = shift @ARGV;
+#Current XES number 
+my $XEScount = shift @ARGV;
 
 #Main directory of the XES Program
 my $home = "$Bin/../"; 
@@ -166,9 +166,9 @@ my %var = &read_variables(0, "../$input_file");
    # Create fort.13
    #---------------------------------------------------------
    #TODO remove this hard code   
-   my $etot1 = `grep ! ../../Oxygen_1/$var{pbe_outdir}_$PBEcount/pbe_$PBEcount.out1 | gawk '{printf "%f", \$5/2}'`;
-   print "grep ! ../../Oxygen_1/$var{pbe_outdir}_$PBEcount/pbe_$PBEcount.in1 | gawk \'{printf \"%f\", \$5/2}\'\n";
-   print "Debug2 : $etot1\n";
+   my $etot1 = `grep ! ../../Oxygen_1/$var{xes_outdir}_$XEScount/${inout}_$XEScount.out1 | gawk '{printf "%f", \$5/2}'`;
+   #print "grep ! ../../Oxygen_1/$var{xes_outdir}_$XEScount/${inout}_$XEScount.in1 | gawk \'{printf \"%f\", \$5/2}\'\n";
+   #print "Debug2 : $etot1\n";
    
 
    open my $fh_13, '>', 'fort.13' or die " ERROR: Cannot Open fort.13: $!";
@@ -180,7 +180,7 @@ my %var = &read_variables(0, "../$input_file");
    # Create fort.777
    #---------------------------------------------------------
    #TODO remove hard-code
-   my $etot = `grep ! pbe_$PBEcount.out1 | gawk '{printf "%f", \$5/2}'`;
+   my $etot = `grep ! $inout_$XEScount.out1 | gawk '{printf "%f", \$5/2}'`;
    open my $fh_777, '>', 'fort.777' or die " ERROR: Cannot Open fort.777: $!";
    print $fh_777 " $etot";
    close ($fh_777);
