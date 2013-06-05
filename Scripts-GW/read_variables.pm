@@ -33,6 +33,7 @@ sub read_variables{
       config_start            => 1,                   #Starting Excited Oxygen
       config_stop             => '',                  #Ending Excited Oxygen
       procs                   => '',                  #Number of normal Processor (PW, CP, PWnscf, CPnscf)
+      gw_procs                => '',                  #Number of GW Local Field Processors
       prefix                  => '',                  #Prefix for the QE input Files
       numO                    => '',                  #Number of Oxygens
       numH                    => '',                  #Number of Hydrogens

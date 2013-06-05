@@ -277,7 +277,7 @@ END
    #         fort.408               --> Valence Wannier Centers
    #-----------------------------------
       echo "GW Local Field Calculation Started..." | tee -a $error_log
-   if $var{para_prefix} $var{para_flags} $var{procs} $var{gw_qe} < ${inout}_\${XEScount}.in5 > ${inout}_\${XEScount}.out5 2>> $error_log; then
+   if $var{para_prefix} $var{para_flags} $var{gw_procs} $var{gw_qe} < ${inout}_\${XEScount}.in5 > ${inout}_\${XEScount}.out5 2>> $error_log; then
       echo "...GW Local Field Calculation Complete"
    else
       echo "GW Local Field Calculation Failed (Check $error_log)!!"

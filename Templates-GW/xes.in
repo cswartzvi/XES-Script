@@ -2,6 +2,7 @@
 config_start      = 35
 config_stop       = 48
 procs             = 128
+gw_procs          = 512
 xes_steps         = 0 10 20 30 40 50 60 70 80 90 100 150
 gen_proj_run      = 1 
 
