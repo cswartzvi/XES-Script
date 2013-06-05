@@ -207,7 +207,7 @@ do
    # The following is for the Gen Porjections print-out
    #*******************************************************************
    #the atoms-file header
-   cat > atoms.dat <<END
+cat > atoms.dat <<END
       $var{nat} 2 0
       $var{celldm}  0.00000000    0.00000000
       0.00000000    $var{celldm}  0.00000000
@@ -215,7 +215,7 @@ do
 
 END
 
-   cat > submit-wave-print.sh <<END
+cat > submit-wave-print.sh <<END
    #-----------------------------------
    #5)Submit CPnscf Print-Out Wavefunction Calculation 
    #Restart: $var{prefix}_50.save from the second CPnscf Calulation

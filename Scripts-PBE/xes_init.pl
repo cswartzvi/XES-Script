@@ -74,7 +74,7 @@ MAIN: foreach my $ncount ( $var{config_start} .. $var{config_stop} ){
          print " $cur_dir/$var{gs_outdir} exists\n";
 
          #check to see if the gs.out file exists
-         if ( -f "$cur_dir/$var{gs_outdir}/gs.out"){
+         if ( -f "$cur_dir/$var{gs_outdir}/$gs_out"){
             print " $cur_dir/$var{gs_outdir}/$gs_out exists\n";
 
             #check to see if the job was completed (system call)

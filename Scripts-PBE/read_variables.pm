@@ -55,7 +55,7 @@ sub read_variables{
       cpnscf_template         => '',                  #CPnscf template Calculation (3/5)
       cpnscf_print_template   => '',                  #CPnscf print-out template Calculation (4/5)
       gen_proj_template       => '',                  #Gen Projections template (5/5)
-      pbe_outdir              => 'Data-Files_PBE',    #outdir for QE files (All GWs)
+      pbe_outdir              => 'Data-Files_PBE',    #outdir for QE files (All XES)
       submit_template         => '',                  #submit bash script (PBS ..)
       para_prefix             => '',                  #Command to execute parallel run (aprun, mpirun,...)
       para_flags              => '',                  #Parallel command Flags (-n or -np MUST be last)
