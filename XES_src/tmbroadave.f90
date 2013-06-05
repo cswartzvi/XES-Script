@@ -28,7 +28,7 @@
          energy2(i) = energy(i)
    
          !Added Charles Swartz (removed the norm)
-         write(10,*) energy2(i),intensity2(i)
+         !write(10,*) energy2(i),intensity2(i)
 
       enddo
 
@@ -55,16 +55,17 @@
 !      
 !      print *, energy2(i1), energy2(i2)
 !
-!      area = 0.d0
+      area = 0.d0
 !      do i = i1, i2
-!         area = area + intensity2(i)
-!      enddo
-!      area = area * (energy2(2)-energy2(1))
-!      norm = 88.5/area
-!     
-!      do i = 1, npts
-!         write(10,*) energy2(i),intensity2(i)*norm
-!      enddo
+      do i = 1, npts
+         area = area + intensity2(i)
+      enddo
+      area = area * (energy2(2)-energy2(1))
+      norm = 88.5/area
+     
+      do i = 1, npts
+         write(10,*) energy2(i),intensity2(i)*norm
+      enddo
 
       close(10)
       close(20)
