@@ -80,8 +80,6 @@ print <<EOF;
 
 function clean_move {
   if [ -d \$2 ]; then /bin/rm -r \$2; fi
-  if [ ! -d \$2 ]; then mkdir \$2; fi
-  #cp -r \$1/* \$2
   mv \$1 \$2
 }
 
